@@ -10,12 +10,6 @@ Keep it that way. When something changes that belongs in a project brief,
 update `PROJECT.md`, not this file. This file covers only what differs when
 working through Claude Code.
 
-## The app is being renamed to Taught by Her
-
-[RENAME-PLAN.md](RENAME-PLAN.md) is the plan: six ordered steps, with the
-ordering constraint and the file-level change sets. Its checkboxes say which
-steps have landed. Delete this section and the plan when step 6 is done.
-
 ## Running things here
 
 Everything runs in containers — there is no host Node, pnpm, or PostgreSQL.
