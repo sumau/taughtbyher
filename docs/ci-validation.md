@@ -18,7 +18,7 @@ This command runs, in order:
 3. Schema preparation against the dedicated `TEST_DATABASE_URL` connection.
 4. The complete API server test suite, including database-backed workspace
    lifecycle integration tests.
-5. Taught by Her web tests.
+5. Well Tutored web tests.
 6. Smoke-check tests.
 7. `pnpm run build`, which checks documented commands, type-checks libraries
    and workspace packages, and builds the packages that define a build script.

@@ -1,4 +1,4 @@
-# Local development image for the Taught by Her workspace.
+# Local development image for the Well Tutored workspace.
 #
 # glibc (bookworm), not Alpine: pnpm-workspace.yaml excludes every *-musl
 # native binary (lightningcss, @tailwindcss/oxide, rollup), so a musl base

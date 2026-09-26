@@ -25,7 +25,7 @@ const router: IRouter = Router();
 const simpleEmail = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
 const deliveryMessages = {
   pending: "Your enquiry was recorded and is waiting for staff delivery.",
-  delivered: "Your enquiry has been delivered to the Taught by Her team.",
+  delivered: "Your enquiry has been delivered to the Well Tutored team.",
   failed:
     "Your enquiry was recorded, but delivery needs staff attention. You do not need to submit it again.",
 } as const;

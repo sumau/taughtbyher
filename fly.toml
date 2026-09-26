@@ -1,4 +1,4 @@
-# Fly.io deployment for Taught by Her. One machine serving the frontend and the
+# Fly.io deployment for Well Tutored. One machine serving the frontend and the
 # API from a single origin. The database is external and reached through the
 # DATABASE_URL secret. See docs/deploy.md for the full walkthrough, including
 # the secrets this file deliberately omits.

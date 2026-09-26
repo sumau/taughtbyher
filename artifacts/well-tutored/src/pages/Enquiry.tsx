@@ -68,8 +68,9 @@ export default function Enquiry() {
               </h1>
               <p className="max-w-[570px] text-muted-foreground text-[15px] leading-[1.65]">
                 Tell us which tutor you are interested in, then share a little
-                about the student and the support that would help. We review
-                every named-tutor enquiry and keep your details private.
+                about the student and the support that would help. Well Tutored
+                reviews every named-tutor enquiry and keeps your details
+                private.
               </p>
             </div>
 
@@ -122,7 +123,7 @@ export default function Enquiry() {
                   3
                 </span>
                 <p className="m-0">
-                  Our team reviews the enquiry and helps arrange the next
+                  Well Tutored reviews the enquiry and helps arrange the next
                   step.
                 </p>
               </div>

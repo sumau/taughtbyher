@@ -23,7 +23,7 @@ export function Shell({
           <div className="w-[30px] h-[30px] rounded-full bg-primary flex items-center justify-center text-primary-foreground font-serif text-[22px] font-normal pb-0.5">
             w
           </div>
-          taught by her
+          well tutored
         </Link>
         
         {/* Desktop Links */}
@@ -75,7 +75,7 @@ export function Shell({
               <div className="w-[30px] h-[30px] rounded-full bg-primary flex items-center justify-center text-primary-foreground font-serif text-[22px] font-normal pb-0.5">
                 w
               </div>
-              taught by her
+              well tutored
             </Link>
             <p className="text-[#C9BFB4] leading-[1.65] max-w-[300px]">
               Women tutors supporting female secondary and A-level students.
@@ -103,7 +103,7 @@ export function Shell({
           </div>
 
           <div className="col-span-1 md:col-span-12 mt-4 md:mt-8 pt-5 border-t border-[#5A524B] text-[11px] text-[#968D82] flex flex-col sm:flex-row justify-between gap-4">
-            <span>© {new Date().getFullYear()} Taught by Her</span>
+            <span>© {new Date().getFullYear()} Well Tutored</span>
             <span>Academic excellence, personalised for her</span>
           </div>
 
@@ -143,7 +143,7 @@ export function Shell({
             <div className="text-muted-foreground text-[14px] leading-[1.65] space-y-4">
               {policy === "safeguarding" ? (
                 <>
-                  <p>Taught by Her is designed for female secondary and A-level students. Enquiries involving under-18s should include a parent or guardian's contact details.</p>
+                  <p>Well Tutored is designed for female secondary and A-level students. Enquiries involving under-18s should include a parent or guardian's contact details.</p>
                   <div className="mt-6 pt-5 border-t border-border text-[13px]">
                     <strong className="text-foreground block mb-1">Professional boundaries</strong>
                     Tutors communicate through agreed professional channels. Student information is not displayed publicly, and the agency keeps oversight of tutor enquiries and introductions.

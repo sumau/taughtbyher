@@ -39,36 +39,36 @@ test("keeps page metadata aligned with public and workspace routes", () => {
   const expectedMetadata = [
     {
       path: "/",
-      title: "Taught by Her | Women tutors for secondary and A-level students",
+      title: "Well Tutored | Women tutors for secondary and A-level students",
       description:
         "Browse women tutors, read their subject resources and submit a named-tutor enquiry.",
     },
     {
       path: "/resources",
-      title: "Insights & Resources | Taught by Her",
+      title: "Insights & Resources | Well Tutored",
       description:
-        "Read illustrative guides, revision notes and subject resources from Taught by Her tutors.",
+        "Read illustrative guides, revision notes and subject resources from Well Tutored tutors.",
     },
     {
       path: "/resources/essay-planning",
-      title: "Essay Planning | Taught by Her Resources",
-      description: "Read an illustrative tutor-written resource from Taught by Her.",
+      title: "Essay Planning | Well Tutored Resources",
+      description: "Read an illustrative tutor-written resource from Well Tutored.",
     },
     {
       path: "/tutors/alice-smith",
-      title: "Alice Smith | Taught by Her",
+      title: "Alice Smith | Well Tutored",
       description:
         "View this tutor’s subject expertise, qualifications, teaching style and named-tutor enquiry form.",
     },
     {
       path: "/enquire",
-      title: "Make an Enquiry | Taught by Her",
+      title: "Make an Enquiry | Well Tutored",
       description:
-        "Tell us which tutor you are interested in and what support would help.",
+        "Tell Well Tutored which tutor you are interested in and what support would help.",
     },
     {
       path: "/workspace/resources/42",
-      title: "Workspace | Taught by Her",
+      title: "Workspace | Well Tutored",
       description: "Shared workspace for tutor profiles and resources.",
     },
   ];

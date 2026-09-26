@@ -114,7 +114,7 @@ runs do not reuse or delete one another's records.
 
 ### Web application
 
-Run the Taught by Her web tests with:
+Run the Well Tutored web tests with:
 
 ```sh
 pnpm --filter @workspace/well-tutored test

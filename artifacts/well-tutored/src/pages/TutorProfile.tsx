@@ -222,7 +222,7 @@ export default function TutorProfile() {
               Could {firstName}<br /><em>be your person?</em>
             </h2>
             <p className="text-[#CEC1B4] text-[14px] leading-[1.7]">
-              Tell us a little about the student and what would help. We securely deliver your named-tutor enquiry to our team for review. We never publish or expose tutor email addresses.
+              Tell us a little about the student and what would help. Well Tutored securely delivers your named-tutor enquiry to the team for review. We never publish or expose tutor email addresses.
             </p>
             <div className="mt-[31px] grid gap-[13px]">
               <div className="flex items-center gap-[11px] text-[12px] text-[#E5D8CD]">
@@ -235,7 +235,7 @@ export default function TutorProfile() {
               </div>
               <div className="flex items-center gap-[11px] text-[12px] text-[#E5D8CD]">
                 <i className="not-italic w-[25px] h-[25px] border border-[#81766D] rounded-full flex items-center justify-center font-serif text-[13px] text-primary pb-0.5">3</i>
-                We keep an agency copy
+                Well Tutored keeps an agency copy
               </div>
             </div>
           </div>
