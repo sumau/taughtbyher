@@ -39,11 +39,11 @@ jobs:
         env:
           POSTGRES_USER: postgres
           POSTGRES_PASSWORD: postgres
-          POSTGRES_DB: well_tutored
+          POSTGRES_DB: welltutored
         ports:
           - 5432:5432
         options: >-
-          --health-cmd "pg_isready -U postgres -d well_tutored"
+          --health-cmd "pg_isready -U postgres -d welltutored"
           --health-interval 3s
           --health-timeout 3s
           --health-retries 30
@@ -52,10 +52,10 @@ jobs:
       # Both connections are set, and set differently, so lib/db/src/index.ts's
       # refusal to run integration tests against the application database is
       # exercised rather than trivially satisfied by an absent DATABASE_URL.
-      # Nothing writes to well_tutored; it exists to be the URL the guard
+      # Nothing writes to welltutored; it exists to be the URL the guard
       # compares against.
-      DATABASE_URL: postgres://postgres:postgres@localhost:5432/well_tutored
-      TEST_DATABASE_URL: postgres://postgres:postgres@localhost:5432/well_tutored_test
+      DATABASE_URL: postgres://postgres:postgres@localhost:5432/welltutored
+      TEST_DATABASE_URL: postgres://postgres:postgres@localhost:5432/welltutored_test
 
     steps:
       - uses: actions/checkout@v4
@@ -82,7 +82,7 @@ jobs:
       - name: Create the integration-test database
         env:
           PGPASSWORD: postgres
-        run: psql -h localhost -U postgres -c 'CREATE DATABASE well_tutored_test'
+        run: psql -h localhost -U postgres -c 'CREATE DATABASE welltutored_test'
 
       # Runs the guard tests, the test-database checks, schema preparation, the
       # API suite (including the database-backed workspace lifecycle tests), the
@@ -106,7 +106,7 @@ jobs:
     # wrong here: a cancelled deploy leaves the Deployment wherever flyctl had
     # got to. Queue them instead.
     concurrency:
-      group: deploy-well-tutored
+      group: deploy-welltutored
 
     steps:
       - uses: actions/checkout@v4
@@ -145,5 +145,5 @@ jobs:
       # script entries go with it.
       - name: Launch smoke
         env:
-          SMOKE_BASE_URL: https://well-tutored.fly.dev
+          SMOKE_BASE_URL: https://welltutored.fly.dev
         run: pnpm run smoke:launch:incomplete

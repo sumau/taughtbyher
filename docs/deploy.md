@@ -13,7 +13,7 @@ ships a runtime stage that serves both on a single port:
 - `/api/*` — the Express API
 - `/api/__clerk/*` — the Clerk Frontend API proxy, active only when
   `NODE_ENV=production` and `CLERK_SECRET_KEY` is set
-- everything else — the Vite build from `artifacts/well-tutored/dist/public`,
+- everything else — the Vite build from `artifacts/welltutored/dist/public`,
   with client-side routes falling back to `index.html`
 
 One origin serves both, and splitting them is not a configuration this codebase
@@ -168,7 +168,7 @@ Which keys work depends on the hostname, and getting this wrong is the most
 common way a first Deployment fails.
 
 `publishableKeyFromHost` decides this, and the SPA
-(`artifacts/well-tutored/src/app/config.ts`) and the API (`app.ts`) both call it:
+(`artifacts/welltutored/src/app/config.ts`) and the API (`app.ts`) both call it:
 
 ```js
 if (fallbackKey && isDevelopmentFromPublishableKey(fallbackKey)) return fallbackKey;
@@ -207,7 +207,7 @@ read -rsp 'Pooled DATABASE_URL: ' POOLED_DATABASE_URL; echo
 read -rsp 'CLERK_SECRET_KEY: ' CLERK_SECRET_KEY; echo
 read -rsp 'CLERK_PUBLISHABLE_KEY: ' CLERK_PUBLISHABLE_KEY; echo
 
-fly apps create well-tutored
+fly apps create welltutored
 fly secrets set \
   DATABASE_URL="$POOLED_DATABASE_URL" \
   CLERK_SECRET_KEY="$CLERK_SECRET_KEY" \
@@ -243,7 +243,7 @@ repository, which is correct for both:
 [env]
   # The hostname `fly apps create` gave you, with the scheme and no trailing
   # slash.
-  TRUSTED_ORIGINS = "https://well-tutored.fly.dev"
+  TRUSTED_ORIGINS = "https://welltutored.fly.dev"
 ```
 
 **The publishable key has to be here and not in `fly secrets`.** Vite compiles
@@ -269,7 +269,7 @@ and is how you would ship a first image before any of this is merged.
 | Variable | When | Notes |
 | --- | --- | --- |
 | `DATABASE_URL` | runtime, required | Append `?sslmode=require` for a hosted database: `lib/db/src/index.ts` creates a bare `pg` pool with no SSL options of its own. |
-| `TRUSTED_ORIGINS` | runtime, required | The exact public origin, e.g. `https://well-tutored.fly.dev`. See below. |
+| `TRUSTED_ORIGINS` | runtime, required | The exact public origin, e.g. `https://welltutored.fly.dev`. See below. |
 | `PORT` | runtime, required | The image defaults it to `8080`. |
 | `WEB_CLIENT_ROOT` | runtime, required | The directory holding the frontend build; `docker/Dockerfile` sets it to `/app/web`. Leaving it unset makes the server skip serving the frontend entirely, so every page answers 404 while `/api/healthz` stays green. It logs a warning in that state. |
 | `CLERK_SECRET_KEY` | runtime, required | Not optional: the Clerk middleware fails every `/api` request with a 500 when it is absent, public endpoints included. A production key enables the Clerk proxy and workspace sign-in; a syntactically valid placeholder (`sk_test_` + 32 characters, as in `.env.example`) is enough to serve the public site. |
@@ -318,7 +318,7 @@ things behave differently and neither is a fault:
   there is content, and delete the waived variant:
 
   ```
-  SMOKE_BASE_URL=https://well-tutored.fly.dev pnpm run smoke:launch
+  SMOKE_BASE_URL=https://welltutored.fly.dev pnpm run smoke:launch
   ```
 
 To get the illustrative tutors and resources without copying a database, point
@@ -385,7 +385,7 @@ variables. Build from the repository root — the Dockerfile copies the workspac
 so `docker/` is the wrong build context:
 
 ```
-docker build -f docker/Dockerfile --build-arg VITE_CLERK_PUBLISHABLE_KEY=pk_live_... -t well-tutored .
+docker build -f docker/Dockerfile --build-arg VITE_CLERK_PUBLISHABLE_KEY=pk_live_... -t welltutored .
 ```
 
 Point the platform's health check at `/api/healthz` and let it supply `PORT` if

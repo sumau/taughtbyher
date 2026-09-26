@@ -1,13 +1,13 @@
 # Local development stack. The Deployment serves the frontend and the API from
 # one origin; here the Vite dev server proxies /api to the API service instead
-# (see artifacts/well-tutored/vite.config.ts).
-name: well-tutored
+# (see artifacts/welltutored/vite.config.ts).
+name: welltutored
 
 x-node: &node
   build:
     context: ./docker
     dockerfile: Dockerfile.dev
-  image: well-tutored-dev:latest
+  image: welltutored-dev:latest
   working_dir: /workspace
   volumes:
     - .:/workspace
@@ -39,13 +39,13 @@ services:
     environment:
       POSTGRES_USER: postgres
       POSTGRES_PASSWORD: postgres
-      POSTGRES_DB: well_tutored
+      POSTGRES_DB: welltutored
     ports:
       - "5432:5432"
     volumes:
       - pgdata:/var/lib/postgresql/data
     healthcheck:
-      test: ["CMD-SHELL", "pg_isready -U postgres -d well_tutored"]
+      test: ["CMD-SHELL", "pg_isready -U postgres -d welltutored"]
       interval: 3s
       timeout: 3s
       retries: 30
@@ -55,7 +55,7 @@ services:
     environment:
       PNPM_STORE_DIR: /workspace/.pnpm-store
       PORT: "8080"
-      DATABASE_URL: postgres://postgres:postgres@db:5432/well_tutored
+      DATABASE_URL: postgres://postgres:postgres@db:5432/welltutored
       # Browser requests reach the API through the Vite proxy, so the origin
       # the API sees is the web service's. Stated explicitly here because
       # TRUSTED_ORIGINS replaces the built-in defaults rather than adding to
@@ -81,7 +81,7 @@ services:
     depends_on:
       deps:
         condition: service_completed_successfully
-    command: pnpm --filter @workspace/well-tutored run dev
+    command: pnpm --filter @workspace/welltutored run dev
 
   # Schema push. Kept out of the default startup because drizzle-kit can
   # prompt; run it with `docker compose run --rm migrate` so it gets a TTY.
@@ -90,7 +90,7 @@ services:
     profiles: ["tools"]
     environment:
       PNPM_STORE_DIR: /workspace/.pnpm-store
-      DATABASE_URL: postgres://postgres:postgres@db:5432/well_tutored
+      DATABASE_URL: postgres://postgres:postgres@db:5432/welltutored
     depends_on:
       deps:
         condition: service_completed_successfully
@@ -113,8 +113,8 @@ services:
     profiles: ["tools"]
     environment:
       PNPM_STORE_DIR: /workspace/.pnpm-store
-      DATABASE_URL: postgres://postgres:postgres@db:5432/well_tutored
-      TEST_DATABASE_URL: postgres://postgres:postgres@db:5432/well_tutored_test
+      DATABASE_URL: postgres://postgres:postgres@db:5432/welltutored
+      TEST_DATABASE_URL: postgres://postgres:postgres@db:5432/welltutored_test
       PGPASSWORD: postgres
     depends_on:
       deps:
@@ -123,7 +123,7 @@ services:
         condition: service_healthy
     # drizzle-kit applies a schema but cannot create the database that holds
     # it, so create it first. Repeat runs find it present and carry on.
-    command: bash -lc 'createdb -h db -U postgres well_tutored_test 2>/dev/null || true; pnpm run verify:ci'
+    command: bash -lc 'createdb -h db -U postgres welltutored_test 2>/dev/null || true; pnpm run verify:ci'
 
   # The deployment image, for checking it locally before pushing it anywhere.
   # Unlike the services above it has no bind mount and no pnpm: it runs the
@@ -142,10 +142,10 @@ services:
       args:
         # A real pk_test_... key here if you want to exercise sign-in.
         VITE_CLERK_PUBLISHABLE_KEY: ""
-    image: well-tutored:latest
+    image: welltutored:latest
     environment:
       PORT: "8080"
-      DATABASE_URL: postgres://postgres:postgres@db:5432/well_tutored
+      DATABASE_URL: postgres://postgres:postgres@db:5432/welltutored
       # This container's own origin. Nothing supplies it by default, and
       # without it every credentialed request is rejected — the enquiry POST
       # included.

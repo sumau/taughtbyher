@@ -12,7 +12,7 @@ This is a **single-context** repo: one glossary and one ADR directory at the roo
 ├── docs/adr/
 │   ├── 0001-....md
 │   └── 0002-....md
-├── artifacts/          ← api-server, well-tutored, mockup-sandbox
+├── artifacts/          ← api-server, welltutored, mockup-sandbox
 └── lib/                ← db, api-zod, api-client-react, api-spec
 ```
 

@@ -55,7 +55,7 @@ It does not check this file. Claims here are unverified, so keep them few.
 
 ### Issue tracker
 
-Issues live as GitHub issues in `sumau/well-tutored`, driven by the `gh` CLI.
+Issues live as GitHub issues in `sumau/welltutored`, driven by the `gh` CLI.
 See `docs/agents/issue-tracker.md`.
 
 ### Triage labels

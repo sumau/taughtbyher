@@ -21,7 +21,7 @@ flowchart TB
     ci --> ciDb["Temporary PostgreSQL database<br/>for API lifecycle integration tests"]
     deploy["CI: deploy job<br/>push to main"] --> flyDeploy["flyctl deploy"]
     flyDeploy --> deployLaunch["smoke:launch:incomplete<br/>--allow-empty --dev-clerk-instance"]
-    deployLaunch --> deployTarget["https://well-tutored.fly.dev<br/>SMOKE_BASE_URL"]
+    deployLaunch --> deployTarget["https://welltutored.fly.dev<br/>SMOKE_BASE_URL"]
     deployTarget --> deployCoverage["Health, catalogue, public pages,<br/>invalid-enquiry recovery<br/>content and Clerk proxy waived"]
   end
 
@@ -117,7 +117,7 @@ runs do not reuse or delete one another's records.
 Run the Well Tutored web tests with:
 
 ```sh
-pnpm --filter @workspace/well-tutored test
+pnpm --filter @workspace/welltutored test
 ```
 
 The suite checks:
@@ -175,7 +175,7 @@ Clerk environment proxy, published tutor and resource catalogue data, public
 pages, invalid-enquiry validation, and recovery health check:
 
 ```sh
-SMOKE_BASE_URL=https://well-tutored.fly.dev pnpm smoke:launch
+SMOKE_BASE_URL=https://welltutored.fly.dev pnpm smoke:launch
 ```
 
 `SMOKE_BASE_URL` is required in every mode and has no default. It does not
