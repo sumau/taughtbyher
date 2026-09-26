@@ -58,10 +58,10 @@ docker compose run --rm test
 
 Runs the whole CI suite — database-backed API integration tests, frontend
 component tests, smoke checks, documentation checks, typecheck, and build —
-against a second database, `well_tutored_test`, on the same PostgreSQL
+against a second database, `welltutored_test`, on the same PostgreSQL
 service. The service creates that database on first use.
 
-Integration tests never touch `well_tutored`. `lib/db/src/index.ts` reads
+Integration tests never touch `welltutored`. `lib/db/src/index.ts` reads
 `TEST_DATABASE_URL` instead of `DATABASE_URL` whenever `NODE_ENV=test`, and
 refuses to start if the two are equal, so a misconfigured run fails rather
 than mutating application data.
@@ -156,7 +156,7 @@ workspace boundary refuses. A database created by Compose contains no owner to
 approve it, so the first account has to be promoted directly:
 
 ```
-docker compose exec -T db psql -U postgres -d well_tutored -c "
+docker compose exec -T db psql -U postgres -d welltutored -c "
 UPDATE workspace_accounts
    SET role = 'owner', updated_at = NOW()
  WHERE lower(email) = lower('you+clerk_test@example.com')
