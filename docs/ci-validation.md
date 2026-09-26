@@ -18,7 +18,7 @@ This command runs, in order:
 3. Schema preparation against the dedicated `TEST_DATABASE_URL` connection.
 4. The complete API server test suite, including database-backed workspace
    lifecycle integration tests.
-5. Taught by Her web tests.
+5. Well Tutored web tests.
 6. Smoke-check tests.
 7. `pnpm run build`, which checks documented commands, type-checks libraries
    and workspace packages, and builds the packages that define a build script.
@@ -48,7 +48,7 @@ every pull request and on pushes to `main`, and a push to `main` that passes it
 goes on to deploy. The gate therefore runs before a merge, not only after one.
 
 The workflow supplies a `postgres:16` service container and points
-`TEST_DATABASE_URL` at a `taughtbyher_test` database that it creates first.
+`TEST_DATABASE_URL` at a `well_tutored_test` database that it creates first.
 Supplying a connection takes the externally-provided branch of
 `scripts/with-test-database.sh`, so no throwaway cluster is built for the run.
 `DATABASE_URL` is set as well, to a different database on the same server, so
@@ -133,7 +133,7 @@ Enquiry. It needs `SMOKE_CHROMIUM_PATH`, which is why it is not in CI.
 The deploy job finishes by running the launch smoke against the live site:
 
 ```sh
-SMOKE_BASE_URL=https://taughtbyher.fly.dev pnpm run smoke:launch:incomplete
+SMOKE_BASE_URL=https://well-tutored.fly.dev pnpm run smoke:launch:incomplete
 ```
 
 A successful Deploy does not mean a usable Deployment, which is why this runs

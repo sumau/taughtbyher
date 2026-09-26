@@ -11,7 +11,7 @@
     "check:test-database": "pnpm --filter @workspace/scripts run check:test-database",
     "prepare:test-database": "pnpm --filter @workspace/scripts run prepare:test-database",
     "verify:ci": "bash scripts/with-test-database.sh",
-    "verify:ci:checks": "pnpm run test:database-config && pnpm run check:test-database && pnpm run prepare:test-database && pnpm --filter @workspace/api-server test && pnpm --filter @workspace/taughtbyher test && pnpm --filter @workspace/scripts run test:smoke && pnpm run build",
+    "verify:ci:checks": "pnpm run test:database-config && pnpm run check:test-database && pnpm run prepare:test-database && pnpm --filter @workspace/api-server test && pnpm --filter @workspace/well-tutored test && pnpm --filter @workspace/scripts run test:smoke && pnpm run build",
     "smoke:launch": "pnpm --filter @workspace/scripts run smoke",
     "smoke:dev": "pnpm --filter @workspace/scripts run smoke:dev",
     "smoke:launch:incomplete": "pnpm --filter @workspace/scripts run smoke:incomplete",

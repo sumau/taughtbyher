@@ -141,7 +141,7 @@ export function EnquiryForm({ tutor, tutors = [], compact = false }: EnquiryForm
           {receipt.deliveryStatus === "delivered" ? "Message delivered" : receipt.deliveryStatus === "failed" ? "Delivery needs attention" : "Message recorded"}
         </span>
         <h2 className="font-serif text-[32px] md:text-[40px] leading-[1.1] tracking-tight mb-4">
-          {receipt.deliveryStatus === "delivered" ? <>Safely delivered<br /><em>to Taught by Her.</em></> : <>Enquiry recorded<br /><em>for {receipt.tutorName}.</em></>}
+          {receipt.deliveryStatus === "delivered" ? <>Safely delivered<br /><em>to Well Tutored.</em></> : <>Enquiry recorded<br /><em>for {receipt.tutorName}.</em></>}
         </h2>
         <p className="text-muted-foreground text-[14px] leading-[1.6] max-w-[360px] mx-auto mb-8">
           {receipt.message}

@@ -17,7 +17,7 @@ export default function SignInPage() {
             <ArrowLeft size={13} /> Back to the site
           </Link>
           <BookOpenCheck className="text-primary mb-7" size={28} strokeWidth={1.4} />
-          <p className="text-[11px] uppercase tracking-[.18em] text-primary font-bold mb-4">The Taught by Her workspace</p>
+          <p className="text-[11px] uppercase tracking-[.18em] text-primary font-bold mb-4">The Well Tutored workspace</p>
           <h1 className="font-serif text-[clamp(44px,5vw,72px)] leading-[.93] tracking-tight mb-6">Good teaching<br /><em>starts with care.</em></h1>
           <p className="text-sm leading-7 text-muted-foreground max-w-[350px]">Keep your profile, thoughtful resources and tutor introductions in one calm place.</p>
         </div>

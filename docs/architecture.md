@@ -1,4 +1,4 @@
-# Taught by Her architecture
+# Well Tutored architecture
 
 This project keeps the existing React, Express, Drizzle, Clerk, and generated
 OpenAPI client stack. The application is organized around two user-facing
@@ -99,11 +99,11 @@ private draft alongside a live published version.
 
 ## Styling payload
 
-The Taught by Her Vite build enables Tailwind's production Lightning CSS
+The Well Tutored Vite build enables Tailwind's production Lightning CSS
 optimization. The primary stylesheet is currently 115,031 bytes raw and
 19,737 bytes gzip, with a budget of 115,200 raw and 19,800 gzip; run
-`pnpm --filter @workspace/taughtbyher run build` followed by
-`pnpm --filter @workspace/taughtbyher run verify:css` to verify the budget.
+`pnpm --filter @workspace/well-tutored run build` followed by
+`pnpm --filter @workspace/well-tutored run verify:css` to verify the budget.
 
 The remaining global CSS is intentional: Tailwind preflight, theme variables,
 utilities used by both public and authenticated routes, motion states, and

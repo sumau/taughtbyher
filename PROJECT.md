@@ -1,6 +1,6 @@
-# Taught by Her
+# Well Tutored
 
-Taught by Her helps families discover women tutors, read tutor-written resources, and send named-tutor enquiries.
+Well Tutored helps families discover women tutors, read tutor-written resources, and send named-tutor enquiries.
 
 The vocabulary every package shares is in [CONTEXT.md](CONTEXT.md), and the
 decisions a reader will question are in [docs/adr/](docs/adr/).
@@ -14,7 +14,7 @@ decisions a reader will question are in [docs/adr/](docs/adr/).
 - `pnpm --filter @workspace/db run push` — apply schema changes, deliberately and by hand ([ADR-0002](docs/adr/0002-schema-by-deliberate-push.md))
 - `pnpm run prepare:test-database` — validate `TEST_DATABASE_URL` and apply the
   current schema to the dedicated integration-test database
-- Required env: `DATABASE_URL` for PostgreSQL access; `VITE_CLERK_PUBLISHABLE_KEY` for the Taught by Her frontend; and `CLERK_PUBLISHABLE_KEY` for the API's Clerk middleware
+- Required env: `DATABASE_URL` for PostgreSQL access; `VITE_CLERK_PUBLISHABLE_KEY` for the Well Tutored frontend; and `CLERK_PUBLISHABLE_KEY` for the API's Clerk middleware
 - Integration tests require a separate `TEST_DATABASE_URL`. The integration test script sets `NODE_ENV=test`, so the database package uses `TEST_DATABASE_URL` only for that process and rejects a test URL identical to `DATABASE_URL`. `pnpm run verify:ci` provisions a temporary local PostgreSQL connection when no dedicated URL is supplied, or uses the supplied dedicated URL, then applies the current schema before running the API suite.
 - Production-only API env: `CLERK_SECRET_KEY` enables the Clerk Frontend API proxy used by the Deployment. It is not required for development previews.
 
@@ -46,12 +46,12 @@ request, the public enquiry included.
 
 ## Where things live
 
-- `artifacts/taughtbyher/src` — public directory, tutor/resource pages, enquiry flow, auth screens, and private workspace
+- `artifacts/well-tutored/src` — public directory, tutor/resource pages, enquiry flow, auth screens, and private workspace
 - `artifacts/api-server/src` — Express routes, Clerk middleware, seed/bootstrap behavior, and server startup
 - `lib/db/src/schema` — Drizzle/PostgreSQL schema
 - `lib/api-spec/openapi.yaml` — API contract source of truth
 - `lib/api-client-react` and `lib/api-zod` — generated frontend hooks and runtime schemas
-- `artifacts/taughtbyher/src/index.css` — editorial visual system and theme tokens
+- `artifacts/well-tutored/src/index.css` — editorial visual system and theme tokens
 
 ## Architecture decisions
 

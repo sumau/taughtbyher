@@ -37,7 +37,7 @@ function bundleReport(): Plugin {
   };
 
   return {
-    name: 'taughtbyher-bundle-report',
+    name: 'well-tutored-bundle-report',
     generateBundle(_options, bundle) {
       const chunks = Object.values(bundle)
         .filter((asset) => asset.type === 'chunk')

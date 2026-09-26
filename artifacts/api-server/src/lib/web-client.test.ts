@@ -22,9 +22,9 @@ test("resolves the configured root to an absolute path", () => {
   assert.equal(
     resolveWebClientRoot({
       NODE_ENV: "production",
-      WEB_CLIENT_ROOT: "/srv/taughtbyher/web",
+      WEB_CLIENT_ROOT: "/srv/well-tutored/web",
     }),
-    "/srv/taughtbyher/web",
+    "/srv/well-tutored/web",
   );
   assert.equal(
     resolveWebClientRoot({ WEB_CLIENT_ROOT: " ./web " }),

@@ -1,4 +1,4 @@
-# Fly.io deployment for Taught by Her. One machine serving the frontend and the
+# Fly.io deployment for Well Tutored. One machine serving the frontend and the
 # API from a single origin. The database is external and reached through the
 # DATABASE_URL secret. See docs/deploy.md for the full walkthrough, including
 # the secrets this file deliberately omits.
@@ -7,7 +7,7 @@
 # launch` rewrites this file from its own guesses. Update `app` and
 # TRUSTED_ORIGINS together — they must name the same hostname.
 
-app = "taughtbyher"
+app = "well-tutored"
 primary_region = "lhr"
 
 [build]
@@ -23,7 +23,7 @@ primary_region = "lhr"
   PORT = "8080"
   # The exact public origin. Nothing infers it, and an empty
   # trusted-origin set rejects every credentialed request, enquiries included.
-  TRUSTED_ORIGINS = "https://taughtbyher.fly.dev"
+  TRUSTED_ORIGINS = "https://well-tutored.fly.dev"
 
 [http_service]
   internal_port = 8080

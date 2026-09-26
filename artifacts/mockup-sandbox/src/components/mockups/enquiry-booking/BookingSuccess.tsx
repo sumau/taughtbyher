@@ -31,7 +31,7 @@ export function BookingSuccess() {
             Message delivered
           </span>
           <h2 id="success-heading" className="mb-4 text-[34px] leading-[1.05] tracking-tight sm:text-[40px]">
-            Safely delivered<br /><em>to Taught by Her.</em>
+            Safely delivered<br /><em>to Well Tutored.</em>
           </h2>
           <p className="mx-auto mb-8 max-w-[380px] text-[14px] leading-[1.6] text-muted-foreground">
             Your enquiry for Jane has been sent securely. If you are ready to talk, you can choose a time that works for you.

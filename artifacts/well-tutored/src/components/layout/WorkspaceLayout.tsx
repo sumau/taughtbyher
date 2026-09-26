@@ -37,7 +37,7 @@ export function WorkspaceLayout({ children }: { children: ReactNode }) {
           <div className="w-[24px] h-[24px] rounded-full bg-primary flex items-center justify-center text-primary-foreground font-serif text-[16px] font-normal pb-0.5">
             w
           </div>
-          taught by her
+          well tutored
         </Link>
         <div className="flex items-center gap-4 text-[12px] font-semibold text-muted-foreground">
           <Link

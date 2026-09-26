@@ -334,9 +334,9 @@ async function checkPublicPage(
       `${path}: expected HTML content, received "${data.contentType || "none"}".`,
     );
   }
-  if (!/<title>Taught by Her<\/title>/i.test(data.body)) {
+  if (!/<title>Well Tutored<\/title>/i.test(data.body)) {
     throw new SmokeCheckError(
-      `${path}: response did not contain the Taught by Her document.`,
+      `${path}: response did not contain the Well Tutored document.`,
     );
   }
 }

@@ -45,7 +45,7 @@ export default function Home() {
             Academic excellence,<br /><em>personalised for her.</em>
           </h1>
           <p className="max-w-[610px] text-muted-foreground text-[16px] leading-[1.65] mb-[30px]" data-testid="hero-copy">
-            We offer thoughtful, one-to-one support for female secondary and A-level students, led by women tutors with deep subject expertise.
+            Well Tutored offers thoughtful, one-to-one support for female secondary and A-level students, led by women tutors with deep subject expertise.
           </p>
           <button 
             className="bg-foreground text-background inline-flex items-center gap-2.5 px-[18px] py-[14px] text-[12px] font-bold hover:bg-primary transition-colors"
@@ -127,7 +127,7 @@ export default function Home() {
               Let’s talk<br /><em>tutoring.</em>
             </h2>
             <p className="text-[#CEC1B4] max-w-[400px] leading-[1.65] text-[14px]">
-              Choose the tutor you are interested in, then tell us a little about what you need. We record the enquiry securely so our team can review it and respond.
+              Choose the tutor you are interested in, then tell us a little about what you need. Well Tutored records the enquiry securely so the team can review it and respond.
             </p>
             <div className="mt-[28px] grid gap-[12px]">
               <div className="flex items-center gap-[10px] text-[12px] text-[#E5D8CD]">
@@ -140,7 +140,7 @@ export default function Home() {
               </div>
               <div className="flex items-center gap-[10px] text-[12px] text-[#E5D8CD]">
                 <span className="w-[24px] h-[24px] border border-[#81766D] rounded-full flex items-center justify-center font-serif text-[13px] text-[#E7C5B5] pb-0.5">3</span>
-                Our team reviews your named-tutor enquiry
+                Well Tutored reviews your named-tutor enquiry
               </div>
             </div>
           </div>
