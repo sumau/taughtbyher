@@ -46,12 +46,12 @@ request, the public enquiry included.
 
 ## Where things live
 
-- `artifacts/taughtbyher/src` — public directory, tutor/resource pages, enquiry flow, auth screens, and private workspace
+- `artifacts/well-tutored/src` — public directory, tutor/resource pages, enquiry flow, auth screens, and private workspace
 - `artifacts/api-server/src` — Express routes, Clerk middleware, seed/bootstrap behavior, and server startup
 - `lib/db/src/schema` — Drizzle/PostgreSQL schema
 - `lib/api-spec/openapi.yaml` — API contract source of truth
 - `lib/api-client-react` and `lib/api-zod` — generated frontend hooks and runtime schemas
-- `artifacts/taughtbyher/src/index.css` — editorial visual system and theme tokens
+- `artifacts/well-tutored/src/index.css` — editorial visual system and theme tokens
 
 ## Architecture decisions
 

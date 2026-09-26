@@ -396,7 +396,7 @@ importers:
         specifier: 'catalog:'
         version: 4.6.5
 
-  artifacts/taughtbyher:
+  artifacts/well-tutored:
     dependencies:
       '@clerk/react':
         specifier: ^6.16.1

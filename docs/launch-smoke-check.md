@@ -4,7 +4,7 @@ The Launch Smoke asserts that a Deployment is *usable*, which a successful
 Deploy does not imply. It needs no workspace credentials and writes nothing.
 
 ```sh
-SMOKE_BASE_URL=https://taughtbyher.fly.dev pnpm smoke:launch
+SMOKE_BASE_URL=https://well-tutored.fly.dev pnpm smoke:launch
 ```
 
 `SMOKE_BASE_URL` is required and has no default. Nothing infers the target: the
@@ -46,7 +46,7 @@ Two scripts wrap them:
 
 ```sh
 SMOKE_BASE_URL=http://prod:8080 pnpm smoke:dev
-SMOKE_BASE_URL=https://taughtbyher.fly.dev pnpm smoke:launch:incomplete
+SMOKE_BASE_URL=https://well-tutored.fly.dev pnpm smoke:launch:incomplete
 ```
 
 `smoke:launch:incomplete` carries the last two flags together and is what the
@@ -83,7 +83,7 @@ disabled-submit behavior, and intercepts the final response so the check never
 creates a real Enquiry.
 
 ```sh
-SMOKE_BASE_URL=https://taughtbyher.fly.dev \
+SMOKE_BASE_URL=https://well-tutored.fly.dev \
   SMOKE_CHROMIUM_PATH=/path/to/chromium pnpm smoke:enquiry
 ```
 

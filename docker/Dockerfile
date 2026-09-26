@@ -3,7 +3,7 @@
 # docs/deploy.md.
 #
 # Build from the repository root, not from docker/:
-#   docker build -f docker/Dockerfile --build-arg VITE_CLERK_PUBLISHABLE_KEY=pk_... -t taughtbyher .
+#   docker build -f docker/Dockerfile --build-arg VITE_CLERK_PUBLISHABLE_KEY=pk_... -t well-tutored .
 #
 # glibc (bookworm), not Alpine, and linux/amd64: pnpm-workspace.yaml prunes every
 # musl and non-x64 native binary (esbuild, lightningcss, @tailwindcss/oxide,
@@ -34,7 +34,7 @@ RUN pnpm install --frozen-lockfile
 # CI's job (.github/workflows/ci.yml), and the deployment image does not need
 # the other artifacts. The API bundles its workspace dependencies from source
 # through esbuild, so lib/* needs no separate build step.
-RUN pnpm --filter @workspace/taughtbyher run build \
+RUN pnpm --filter @workspace/well-tutored run build \
   && pnpm --filter @workspace/api-server run build
 
 
@@ -49,7 +49,7 @@ ENV WEB_CLIENT_ROOT=/app/web
 WORKDIR /app
 
 COPY --from=build --chown=node:node /workspace/artifacts/api-server/dist ./dist
-COPY --from=build --chown=node:node /workspace/artifacts/taughtbyher/dist/public ./web
+COPY --from=build --chown=node:node /workspace/artifacts/well-tutored/dist/public ./web
 
 USER node
 EXPOSE 8080

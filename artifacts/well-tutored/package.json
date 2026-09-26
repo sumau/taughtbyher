@@ -1,5 +1,5 @@
 {
-  "name": "@workspace/taughtbyher",
+  "name": "@workspace/well-tutored",
   "version": "0.0.0",
   "private": true,
   "type": "module",
@@ -10,7 +10,7 @@
     "verify:css": "node ./scripts/verify-css-build.mjs",
     "serve": "vite preview --config vite.config.ts --host 0.0.0.0",
     "typecheck": "tsc -p tsconfig.json --noEmit",
-    "test": "pnpm --filter @workspace/api-server exec tsx --tsconfig ../taughtbyher/tsconfig.json --test-concurrency=1 --test ../taughtbyher/src/app/route-map.test.ts ../taughtbyher/src/components/layout/WorkspaceAuthBoundary.test.tsx ../taughtbyher/src/components/EnquiryForm.test.tsx ../taughtbyher/src/lib/public-tutor-query.test.ts ../taughtbyher/src/pages/TutorProfile.test.tsx ../taughtbyher/src/pages/Home.test.tsx"
+    "test": "pnpm --filter @workspace/api-server exec tsx --tsconfig ../well-tutored/tsconfig.json --test-concurrency=1 --test ../well-tutored/src/app/route-map.test.ts ../well-tutored/src/components/layout/WorkspaceAuthBoundary.test.tsx ../well-tutored/src/components/EnquiryForm.test.tsx ../well-tutored/src/lib/public-tutor-query.test.ts ../well-tutored/src/pages/TutorProfile.test.tsx ../well-tutored/src/pages/Home.test.tsx"
   },
   "devDependencies": {
     "@hookform/resolvers": "^3.10.0",

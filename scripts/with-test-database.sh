@@ -15,12 +15,12 @@ for command in initdb pg_ctl createdb node; do
   fi
 done
 
-runtime_dir="$(mktemp -d "${TMPDIR:-/tmp}/taughtbyher-ci-db.XXXXXX")"
+runtime_dir="$(mktemp -d "${TMPDIR:-/tmp}/well-tutored-ci-db.XXXXXX")"
 data_dir="$runtime_dir/data"
 socket_dir="$runtime_dir/socket"
 log_file="$runtime_dir/postgres.log"
 db_user="$(id -un)"
-db_name="taughtbyher_ci"
+db_name="well_tutored_ci"
 
 cleanup() {
   if [[ -d "$data_dir" ]]; then
