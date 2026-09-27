@@ -13,7 +13,7 @@
     "test": "pnpm --filter @workspace/api-server exec tsx --tsconfig ../welltutored/tsconfig.json --test-concurrency=1 --test ../welltutored/src/app/route-map.test.ts ../welltutored/src/components/layout/WorkspaceAuthBoundary.test.tsx ../welltutored/src/components/EnquiryForm.test.tsx ../welltutored/src/lib/public-tutor-query.test.ts ../welltutored/src/pages/TutorProfile.test.tsx ../welltutored/src/pages/Home.test.tsx"
   },
   "devDependencies": {
-    "@hookform/resolvers": "^3.10.0",
+    "@hookform/resolvers": "^5.9.1",
     "@radix-ui/react-alert-dialog": "^1.1.23",
     "@radix-ui/react-dialog": "^1.1.23",
     "@radix-ui/react-label": "^2.1.15",
