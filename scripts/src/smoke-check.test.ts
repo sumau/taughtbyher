@@ -169,6 +169,29 @@ async function startRedirectFixture(): Promise<{
   };
 }
 
+// A second hostname for the fixture Deployment: answers every request with
+// whatever `respond` writes, standing in for www, the .com or fly.dev.
+async function startAliasServer(
+  respond: (
+    request: IncomingMessage,
+    response: ServerResponse<IncomingMessage>,
+  ) => void,
+): Promise<{ url: string; close: () => Promise<void> }> {
+  const server = createServer(respond);
+  server.listen(0, "127.0.0.1");
+  await once(server, "listening");
+  const address = server.address();
+  assert.ok(address && typeof address === "object");
+
+  return {
+    url: `http://127.0.0.1:${address.port}`,
+    close: async () => {
+      server.close();
+      await once(server, "close");
+    },
+  };
+}
+
 const emptyContent: FailureCase["respond"] = (request, response) => {
   const path = request.url ?? "/";
   if (path !== "/api/tutors" && path !== "/api/resources") {
@@ -318,6 +341,7 @@ function runSmokeCommand(
     devClerkInstance?: boolean;
     timeoutMs?: string;
     totalTimeoutMs?: string;
+    redirectFrom?: string;
   } = {},
 ): Promise<{
   exitCode: number | null;
@@ -341,6 +365,7 @@ function runSmokeCommand(
         ...(baseUrl ? { SMOKE_BASE_URL: baseUrl } : { SMOKE_BASE_URL: "" }),
         SMOKE_TIMEOUT_MS: options.timeoutMs ?? "2000",
         SMOKE_TOTAL_TIMEOUT_MS: options.totalTimeoutMs ?? "60000",
+        SMOKE_REDIRECT_FROM: options.redirectFrom ?? "",
       },
       stdio: ["ignore", "pipe", "pipe"],
     },
@@ -662,6 +687,107 @@ test("launch checks reject responses redirected to a different origin", async ()
           `to final origin "${escapedDestinationUrl}".`,
       ),
     );
+  } finally {
+    await fixture.close();
+  }
+});
+
+test("SMOKE_REDIRECT_FROM passes when every listed origin redirects permanently to the target", async () => {
+  const fixture = await startFixture({
+    name: "redirect target",
+    expectedMessage: "",
+    respond: () => false,
+  });
+  const alias = await startAliasServer((request, response) => {
+    response.writeHead(301, {
+      location: new URL(request.url ?? "/", fixture.url).toString(),
+    });
+    response.end();
+  });
+
+  try {
+    const result = await runSmokeCommand(fixture.url, {
+      redirectFrom: alias.url,
+    });
+    assert.equal(result.exitCode, 0, result.output);
+    assert.match(
+      result.output,
+      new RegExp(`✓ ${alias.url} redirects to ${fixture.url}`.replace(/[.]/g, "\\.")),
+    );
+  } finally {
+    await alias.close();
+    await fixture.close();
+  }
+});
+
+for (const aliasCase of [
+  {
+    name: "an origin that serves the site instead of redirecting",
+    respond: (_request: IncomingMessage, response: ServerResponse<IncomingMessage>) =>
+      writePage(response),
+    expectedMessage: "expected HTTP 301, received 200",
+  },
+  {
+    name: "a temporary redirect",
+    respond: (request: IncomingMessage, response: ServerResponse<IncomingMessage>, target: string) => {
+      response.writeHead(302, { location: new URL(request.url ?? "/", target).toString() });
+      response.end();
+    },
+    expectedMessage: "expected HTTP 301, received 302",
+  },
+  {
+    name: "a redirect that drops the path and query",
+    respond: (_request: IncomingMessage, response: ServerResponse<IncomingMessage>, target: string) => {
+      response.writeHead(301, { location: `${target}/` });
+      response.end();
+    },
+    expectedMessage: `expected Location "`,
+  },
+]) {
+  test(`SMOKE_REDIRECT_FROM rejects ${aliasCase.name}`, async () => {
+    const fixture = await startFixture({
+      name: "redirect target",
+      expectedMessage: "",
+      respond: () => false,
+    });
+    const alias = await startAliasServer((request, response) =>
+      aliasCase.respond(request, response, fixture.url),
+    );
+
+    try {
+      const result = await runSmokeCommand(fixture.url, {
+        redirectFrom: alias.url,
+      });
+      assert.notEqual(result.exitCode, 0, result.output);
+      assert.match(
+        result.output,
+        new RegExp(`${alias.url} redirects to ${fixture.url}: ${aliasCase.expectedMessage}`.replace(/[.]/g, "\\.")),
+      );
+    } finally {
+      await alias.close();
+      await fixture.close();
+    }
+  });
+}
+
+test("malformed SMOKE_REDIRECT_FROM fails before making requests", async () => {
+  const fixture = await startFixture({
+    name: "redirect target",
+    expectedMessage: "",
+    respond: () => false,
+  });
+
+  try {
+    for (const [redirectFrom, expectedMessage] of [
+      ["https://alias.example/home", "SMOKE_REDIRECT_FROM must list bare origins"],
+      ["ftp://alias.example", "SMOKE_REDIRECT_FROM must use http or https"],
+      [fixture.url, "SMOKE_REDIRECT_FROM lists the target"],
+    ]) {
+      const result = await runSmokeCommand(fixture.url, { redirectFrom });
+      assert.notEqual(result.exitCode, 0, result.output);
+      assert.match(result.output, new RegExp(expectedMessage), result.output);
+    }
+    assert.deepEqual(fixture.requests, []);
   } finally {
     await fixture.close();
   }

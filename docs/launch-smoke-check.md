@@ -29,6 +29,24 @@ treated as healthy.
 
 The command exits non-zero on any failed check.
 
+## Redirecting hostnames
+
+`SMOKE_REDIRECT_FROM` optionally lists the other origins the Deployment answers
+on, separated by commas or spaces. Each one must answer
+`/resources?smoke=redirect` with a `301` whose `Location` is the same path and
+query on `SMOKE_BASE_URL`. A `302`, a page served in place, or a redirect that
+drops the path fails the check. Its entries are validated before any request,
+like the target: each must be a bare origin, and none may be the target itself.
+
+```sh
+SMOKE_BASE_URL=https://welltutored.example \
+  SMOKE_REDIRECT_FROM="https://www.welltutored.example https://welltutored.fly.dev" \
+  pnpm smoke:launch
+```
+
+The Deployment sends these redirects itself once `PUBLIC_ORIGIN` is set; see
+the configuration reference in [deploy.md](deploy.md#configuration-reference).
+
 ## Waivers
 
 Three flags waive an assertion the target genuinely cannot meet. Each is named

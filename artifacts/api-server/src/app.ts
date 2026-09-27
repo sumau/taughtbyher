@@ -13,6 +13,7 @@ import {
   RequestOriginError,
 } from "./middlewares/request-origin";
 import { apiErrorHandler } from "./middlewares/api-error-handler";
+import { redirectToPublicOrigin } from "./middlewares/public-origin";
 import {
   CLERK_PROXY_PATH,
   clerkProxyMiddleware,
@@ -40,6 +41,9 @@ app.use(
     },
   }),
 );
+// Before everything that answers a request, so a visitor on any other hostname
+// is sent to the Public Origin rather than served from the one they typed.
+app.use(redirectToPublicOrigin());
 app.use(CLERK_PROXY_PATH, clerkProxyMiddleware());
 app.use(
   cors({
