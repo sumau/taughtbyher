@@ -58,15 +58,15 @@ jobs:
       TEST_DATABASE_URL: postgres://postgres:postgres@localhost:5432/welltutored_test
 
     steps:
-      - uses: actions/checkout@v4
+      - uses: actions/checkout@v7
 
       # No version here on purpose: the action reads the "packageManager" pin
       # from package.json, which docker/Dockerfile.dev also tracks. One pin,
       # three environments.
-      - uses: pnpm/action-setup@v4
+      - uses: pnpm/action-setup@v6
 
       # Must come after pnpm/action-setup so `cache: pnpm` can find the store.
-      - uses: actions/setup-node@v4
+      - uses: actions/setup-node@v7
         with:
           node-version: 24
           cache: pnpm
@@ -109,7 +109,7 @@ jobs:
       group: deploy-welltutored
 
     steps:
-      - uses: actions/checkout@v4
+      - uses: actions/checkout@v7
 
       - uses: superfly/flyctl-actions/setup-flyctl@master
 
@@ -125,9 +125,9 @@ jobs:
         env:
           FLY_API_TOKEN: ${{ secrets.FLY_API_TOKEN }}
 
-      - uses: pnpm/action-setup@v4
+      - uses: pnpm/action-setup@v6
 
-      - uses: actions/setup-node@v4
+      - uses: actions/setup-node@v7
         with:
           node-version: 24
           cache: pnpm
