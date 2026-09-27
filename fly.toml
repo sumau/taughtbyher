@@ -17,7 +17,7 @@ primary_region = "lhr"
     # Read by the browser bundle, so it has to be present at build time rather
     # than set as a secret. Publishable keys are public values. Leave it empty
     # to deploy the public site without workspace sign-in.
-    VITE_CLERK_PUBLISHABLE_KEY = "pk_test_cHJvbW90ZWQtY295b3RlLTM5MTAuY2xlcmsuYWNjb3VudHMuZGV2JA"
+    VITE_CLERK_PUBLISHABLE_KEY = "pk_live_Y2xlcmsud2VsbHR1dG9yZWQuY28udWsk"
 
 [env]
   PORT = "8080"

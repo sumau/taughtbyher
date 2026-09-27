@@ -4,18 +4,16 @@ The Deployment serves the browser bundle and the API from a single container on
 a single origin: `/api/*` is the Express API, everything else is the frontend
 build with client-side routes falling back to `index.html`. Splitting them
 across a static host and an API host is not a configuration this codebase
-supports, and making it one would mean changing three independent things.
+supports, and making it one would mean changing two independent things.
 
 ## Why
 
-Three mechanisms assume one origin, and each fails differently if it is broken:
+Two mechanisms assume one origin, and each fails differently if it is broken:
 
 - **Clerk's session cookies are same-origin.** A frontend on another host does
   not carry them.
 - **`requireTrustedMutationOrigin` rejects mutations** whose `Origin` is not the
   Deployment's own. A separately hosted frontend is, by definition, not that.
-- **The Clerk Frontend API proxy signs upstream requests with the hostname the
-  browser used**, so it has to be the same hostname the API is reached at.
 
 The alternative — a CDN or static host for the frontend, the API somewhere else
 — is the more conventional shape and is what a reader would expect, which is

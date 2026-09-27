@@ -11,13 +11,11 @@ One container. `docker/Dockerfile` builds the frontend, bundles the API, and
 ships a runtime stage that serves both on a single port:
 
 - `/api/*` — the Express API
-- `/api/__clerk/*` — the Clerk Frontend API proxy, active only when
-  `NODE_ENV=production` and `CLERK_SECRET_KEY` is set
 - everything else — the Vite build from `artifacts/welltutored/dist/public`,
   with client-side routes falling back to `index.html`
 
 One origin serves both, and splitting them is not a configuration this codebase
-supports — [ADR-0001](adr/0001-single-origin-deployment.md) has the three
+supports — [ADR-0001](adr/0001-single-origin-deployment.md) has the two
 mechanisms that depend on it.
 
 Plus a PostgreSQL database, hosted separately from the container — see
@@ -224,7 +222,7 @@ return buildPublishableKey(`clerk.${hostname}`);
 - A **development** key (`pk_test_…`) is used exactly as given, so Clerk is
   reached at `<slug>.clerk.accounts.dev` whatever the hostname. This is the only
   configuration that works on a hostname whose DNS you do not control, such as
-  `*.fly.dev`, and it needs no records and no proxy.
+  `*.fly.dev`, and it needs no records.
 - A **production** key (`pk_live_…`), or no key at all, is discarded: both sides
   derive a key for `clerk.<hostname>` instead. That expects the CNAME a Clerk
   production instance asks you to add, so it requires a domain of your own.
@@ -236,6 +234,49 @@ app's name rather than a hostname, and changing it means creating a new app.
 Development instances show a notice in the sign-in UI, share Clerk's OAuth
 credentials, and carry lower limits, so they are for getting the Deployment
 working rather than for live traffic.
+
+The live Deployment runs on a production instance for `welltutored.co.uk`,
+reached at `clerk.welltutored.co.uk`. There is no Frontend API proxy: the
+browser talks to that CNAME directly.
+
+### Moving to a production instance
+
+In this order, so the server's keys and the bundle's key change in one deploy:
+
+1. In the Clerk dashboard, create a production instance for the Public Origin's
+   domain, cloning the development instance's settings.
+2. Add the DNS records it lists (`clerk.`, `accounts.`, `clkmail.` and two
+   DKIM records) in Cloudflare as **DNS only**, and wait until Clerk shows the
+   domain verified and its certificates issued.
+3. Social sign-in needs credentials of your own; a production instance does not
+   share Clerk's. For Google: create a Web OAuth client in Google Cloud with
+   the redirect URI Clerk shows, set the consent screen to **In production**
+   (in Testing, only listed test users can sign in), and paste the client ID
+   and secret into Clerk.
+4. Stage the two secrets without restarting anything, so they take effect with
+   the next deploy rather than alongside a bundle built for the old instance:
+
+   ```
+   read -rsp 'CLERK_SECRET_KEY: ' CLERK_SECRET_KEY; echo
+   read -rsp 'CLERK_PUBLISHABLE_KEY: ' CLERK_PUBLISHABLE_KEY; echo
+   fly secrets set --stage \
+     CLERK_SECRET_KEY="$CLERK_SECRET_KEY" \
+     CLERK_PUBLISHABLE_KEY="$CLERK_PUBLISHABLE_KEY"
+   ```
+
+5. Put the `pk_live_…` key in `fly.toml` under `[build.args]` and merge. The
+   deploy picks up the staged secrets, and the launch smoke checks
+   `https://clerk.<domain>/v1/environment` for a production instance.
+
+A Clerk user ID belongs to its instance, so workspace accounts do not carry
+over. Tutors, resources, drafts and enquiries are untouched — none of them
+reference Clerk. Rows in `workspace_accounts` created on the old instance are
+the exception: signing in on the new one creates a second, pending account, and
+a stale `owner` row makes the `UPDATE` in
+[workspace-owner-bootstrap.md](workspace-owner-bootstrap.md) a no-op, since it
+is guarded by `AND NOT EXISTS (SELECT 1 FROM workspace_accounts WHERE role =
+'owner')`. Delete the old instance's rows first, then sign in on the new
+instance and promote again.
 
 ## Fly.io
 
@@ -345,7 +386,7 @@ attached, with `www.welltutored.co.uk`, `welltutored.com` and
 | `PUBLIC_ORIGIN` | runtime, optional | The Public Origin, e.g. `https://welltutored.example`. When set, a request arriving on any other hostname gets a `301` to the same path and query there; `/api/healthz` is exempt, because Fly's health checks do not use the public hostname. It must also appear in `TRUSTED_ORIGINS`, or the server refuses to start. Unset, nothing redirects. |
 | `PORT` | runtime, required | The image defaults it to `8080`. |
 | `WEB_CLIENT_ROOT` | runtime, required | The directory holding the frontend build; `docker/Dockerfile` sets it to `/app/web`. Leaving it unset makes the server skip serving the frontend entirely, so every page answers 404 while `/api/healthz` stays green. It logs a warning in that state. |
-| `CLERK_SECRET_KEY` | runtime, required | Not optional: the Clerk middleware fails every `/api` request with a 500 when it is absent, public endpoints included. A production key enables the Clerk proxy and workspace sign-in; a syntactically valid placeholder (`sk_test_` + 32 characters, as in `.env.example`) is enough to serve the public site. |
+| `CLERK_SECRET_KEY` | runtime, required | Not optional: the Clerk middleware fails every `/api` request with a 500 when it is absent, public endpoints included. A real key enables workspace sign-in; a syntactically valid placeholder (`sk_test_` + 32 characters, as in `.env.example`) is enough to serve the public site. |
 | `CLERK_PUBLISHABLE_KEY` | runtime | Used by the Clerk middleware. |
 | `VITE_CLERK_PUBLISHABLE_KEY` | **build**, as a build argument | Compiled into the browser bundle. Setting it at runtime has no effect. |
 
@@ -401,19 +442,6 @@ tunnel to that database open, override `DATABASE_URL` on the `api` service and
 interrupt it once it logs that it is listening. Seeding is idempotent, so a
 repeat run changes nothing.
 
-### Switching Clerk instances later
-
-Standing the Deployment up on a development instance and moving to a production
-one when a domain arrives means your Clerk user ID changes, so budget one step
-for it. Tutors, resources, drafts and enquiries are untouched — none of them
-reference Clerk. Your `workspace_accounts` row is the exception: the new instance
-issues a different `clerk_user_id`, so signing in creates a second, pending
-account, and the stale `owner` row makes the `UPDATE` in
-[workspace-owner-bootstrap.md](workspace-owner-bootstrap.md) a no-op, since it is
-guarded by `AND NOT EXISTS (SELECT 1 FROM workspace_accounts WHERE role =
-'owner')`. Delete the stale row first, then sign in on the new instance and
-promote again.
-
 ## Workspace sign-in
 
 `clerkMiddleware` is mounted under `/api`, not globally. Clerk answers a request
@@ -421,13 +449,6 @@ that accepts `text/html` with a handshake redirect when it cannot establish a
 session, so a globally mounted Clerk would bounce every page load away from the
 app, since this server serves the HTML. The SPA authenticates client-side
 through `@clerk/react`.
-
-The Frontend API proxy at `/api/__clerk` is a third path, and is not verified
-here. It also needs a production instance — it attributes requests by host and a
-dev instance answers `host_invalid` — and the frontend only routes through it
-when `VITE_CLERK_PROXY_URL` is set, which nothing in this repository does, while
-the API's `clerkMiddleware` passes no matching `proxyUrl`. Treat wiring it up as
-work, not configuration.
 
 ## Verifying the image locally
 

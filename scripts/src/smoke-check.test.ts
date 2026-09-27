@@ -51,6 +51,16 @@ const resource = {
   publishedAt: "2026-01-01T00:00:00.000Z",
 };
 
+function clerkEnvironment(instanceEnvironmentType = "production") {
+  return {
+    auth_config: { object: "auth_config" },
+    display_config: {
+      object: "display_config",
+      instance_environment_type: instanceEnvironmentType,
+    },
+  };
+}
+
 const scriptsRoot = resolve(dirname(fileURLToPath(import.meta.url)), "..");
 
 function writeJson(
@@ -81,11 +91,10 @@ function writeHealthyResponse(
     writeJson(response, { status: "ok" });
     return;
   }
-  if (path === "/api/__clerk/v1/environment") {
-    writeJson(response, {
-      auth_config: { object: "auth_config" },
-      display_config: { object: "display_config" },
-    });
+  // The fixture doubles as the Clerk Frontend API: runSmokeCommand points
+  // SMOKE_CLERK_FRONTEND_API at it unless a test says otherwise.
+  if (path === "/v1/environment") {
+    writeJson(response, clerkEnvironment());
     return;
   }
   if (path === "/api/tutors") {
@@ -201,26 +210,6 @@ const emptyContent: FailureCase["respond"] = (request, response) => {
   return true;
 };
 
-const hostInvalidClerkProxy = pathResponse(
-  "/api/__clerk/v1/environment",
-  (_request, response) => {
-    writeJson(
-      response,
-      {
-        errors: [
-          {
-            message: "Invalid host",
-            long_message:
-              "We were unable to attribute this request to an instance running on Clerk.",
-            code: "host_invalid",
-          },
-        ],
-      },
-      400,
-    );
-  },
-);
-
 function pathResponse(
   path: string,
   callback: (
@@ -287,17 +276,21 @@ const failureCases: FailureCase[] = [
   },
   {
     name: "malformed Clerk payloads",
+    expectedMessage: "/v1/environment: unexpected auth_config object.",
+    respond: pathResponse("/v1/environment", (_request, response) => {
+      writeJson(response, {
+        ...clerkEnvironment(),
+        auth_config: { object: "unexpected" },
+      });
+    }),
+  },
+  {
+    name: "a development Clerk instance",
     expectedMessage:
-      "/api/__clerk/v1/environment: unexpected auth_config object.",
-    respond: pathResponse(
-      "/api/__clerk/v1/environment",
-      (_request, response) => {
-        writeJson(response, {
-          auth_config: { object: "unexpected" },
-          display_config: { object: "display_config" },
-        });
-      },
-    ),
+      '/v1/environment: expected a production instance, received "development".',
+    respond: pathResponse("/v1/environment", (_request, response) => {
+      writeJson(response, clerkEnvironment("development"));
+    }),
   },
   {
     name: "malformed tutor payloads",
@@ -338,7 +331,7 @@ function runSmokeCommand(
   options: {
     development?: boolean;
     allowEmpty?: boolean;
-    devClerkInstance?: boolean;
+    clerkFrontendApi?: string;
     timeoutMs?: string;
     totalTimeoutMs?: string;
     redirectFrom?: string;
@@ -356,7 +349,6 @@ function runSmokeCommand(
       smokeFile,
       ...(options.development ? ["--dev"] : []),
       ...(options.allowEmpty ? ["--allow-empty"] : []),
-      ...(options.devClerkInstance ? ["--dev-clerk-instance"] : []),
     ],
     {
       cwd: scriptsRoot,
@@ -366,6 +358,7 @@ function runSmokeCommand(
         SMOKE_TIMEOUT_MS: options.timeoutMs ?? "2000",
         SMOKE_TOTAL_TIMEOUT_MS: options.totalTimeoutMs ?? "60000",
         SMOKE_REDIRECT_FROM: options.redirectFrom ?? "",
+        SMOKE_CLERK_FRONTEND_API: options.clerkFrontendApi ?? baseUrl ?? "",
       },
       stdio: ["ignore", "pipe", "pipe"],
     },
@@ -498,7 +491,7 @@ test("every mode requires an explicit target", async () => {
   }
 });
 
-test("development check skips the production-only Clerk proxy assertion", async () => {
+test("development check neither needs nor requests a Clerk Frontend API", async () => {
   const fixture = await startFixture({
     name: "healthy development run",
     expectedMessage: "",
@@ -506,64 +499,39 @@ test("development check skips the production-only Clerk proxy assertion", async 
   });
 
   try {
-    const result = await runSmokeCommand(fixture.url, { development: true });
-
-    assert.equal(result.exitCode, 0, result.output);
-    assert.match(
-      result.output,
-      /- \/api\/__clerk\/v1\/environment \(Clerk proxy is production-only\)/,
-    );
-    assert.equal(
-      fixture.requests.includes("GET /api/__clerk/v1/environment"),
-      false,
-    );
-  } finally {
-    await fixture.close();
-  }
-});
-
-test("a development Clerk instance fails the launch check without the waiver", async () => {
-  const fixture = await startFixture({
-    name: "development Clerk instance",
-    expectedMessage: "",
-    respond: hostInvalidClerkProxy,
-  });
-
-  try {
-    const result = await runSmokeCommand(fixture.url);
-
-    assert.notEqual(result.exitCode, 0, result.output);
-    assert.match(
-      result.output,
-      /\/api\/__clerk\/v1\/environment: expected HTTP 200, received 400\./,
-    );
-  } finally {
-    await fixture.close();
-  }
-});
-
-test("--dev-clerk-instance waives the Clerk proxy assertion", async () => {
-  const fixture = await startFixture({
-    name: "development Clerk instance with the waiver",
-    expectedMessage: "",
-    respond: hostInvalidClerkProxy,
-  });
-
-  try {
     const result = await runSmokeCommand(fixture.url, {
-      devClerkInstance: true,
+      development: true,
+      clerkFrontendApi: "",
     });
 
     assert.equal(result.exitCode, 0, result.output);
-    assert.match(
-      result.output,
-      /- \/api\/__clerk\/v1\/environment \(Deployment is on a development Clerk instance\)/,
-    );
-    assert.equal(
-      fixture.requests.includes("GET /api/__clerk/v1/environment"),
-      false,
-      result.output,
-    );
+    assert.match(result.output, /- Clerk Frontend API \(development check\)/);
+    assert.equal(fixture.requests.includes("GET /v1/environment"), false);
+  } finally {
+    await fixture.close();
+  }
+});
+
+test("a launch check fails before making requests without a Clerk Frontend API", async () => {
+  const fixture = await startFixture({
+    name: "unused Clerk Frontend API validation fixture",
+    expectedMessage: "",
+    respond: () => false,
+  });
+
+  try {
+    for (const [clerkFrontendApi, expectedMessage] of [
+      ["", "SMOKE_CLERK_FRONTEND_API must name the Clerk production instance"],
+      [
+        "https://clerk.example/v1",
+        "SMOKE_CLERK_FRONTEND_API must be a bare origin",
+      ],
+    ]) {
+      const result = await runSmokeCommand(fixture.url, { clerkFrontendApi });
+      assert.notEqual(result.exitCode, 0, result.output);
+      assert.match(result.output, new RegExp(expectedMessage), result.output);
+    }
+    assert.deepEqual(fixture.requests, []);
   } finally {
     await fixture.close();
   }
@@ -603,10 +571,9 @@ test("--allow-empty waives the content assertions an empty deployment cannot mee
     );
 
     assert.equal(result.exitCode, 0, result.output);
-    // The Clerk proxy is still asserted: --allow-empty waives content, and
-    // nothing else.
+    // Clerk is still asserted: --allow-empty waives content, and nothing else.
     assert.equal(
-      fixture.requests.includes("GET /api/__clerk/v1/environment"),
+      fixture.requests.includes("GET /v1/environment"),
       true,
       result.output,
     );
@@ -624,7 +591,7 @@ test("--allow-empty waives the content assertions an empty deployment cannot mee
     // included — requesting those as HTML is what catches a broken deployment.
     assert.deepEqual(fixture.requests, [
       "GET /api/healthz",
-      "GET /api/__clerk/v1/environment",
+      "GET /v1/environment",
       "GET /api/tutors",
       "GET /api/resources",
       "GET /",
@@ -820,10 +787,10 @@ test("overall smoke deadline stops sequential slow requests", async () => {
   const fixture = await startFixture({
     name: "sequential slow requests",
     expectedMessage:
-      "/api/__clerk/v1/environment: overall smoke check timed out after 1000ms.",
+      "/v1/environment: overall smoke check timed out after 1000ms.",
     respond: (request, response) => {
       const path = request.url ?? "/";
-      if (path !== "/api/healthz" && path !== "/api/__clerk/v1/environment") {
+      if (path !== "/api/healthz" && path !== "/v1/environment") {
         return false;
       }
 
@@ -832,10 +799,7 @@ test("overall smoke deadline stops sequential slow requests", async () => {
         if (path === "/api/healthz") {
           writeJson(response, { status: "ok" });
         } else {
-          writeJson(response, {
-            auth_config: { object: "auth_config" },
-            display_config: { object: "display_config" },
-          });
+          writeJson(response, clerkEnvironment());
         }
       }, 550);
       return true;
@@ -850,12 +814,12 @@ test("overall smoke deadline stops sequential slow requests", async () => {
     assert.notEqual(result.exitCode, 0, result.output);
     assert.match(
       result.output,
-      /\/api\/__clerk\/v1\/environment: overall smoke check timed out after 1000ms\./,
+      /\/v1\/environment: overall smoke check timed out after 1000ms\./,
     );
     assert.match(result.output, /SMOKE_TOTAL_TIMEOUT_MS/);
     assert.deepEqual(fixture.requests, [
       "GET /api/healthz",
-      "GET /api/__clerk/v1/environment",
+      "GET /v1/environment",
     ]);
   } finally {
     await fixture.close();
@@ -873,7 +837,7 @@ test("healthy launch checks pass entirely against the loopback fixture", async (
     const result = await runSmokeCommand(fixture.url);
     const expectedChecks = [
       "/api/healthz",
-      "/api/__clerk/v1/environment",
+      `${fixture.url}/v1/environment`,
       "/api/tutors",
       "/api/resources",
       "/",
@@ -901,7 +865,7 @@ test("healthy launch checks pass entirely against the loopback fixture", async (
     assert.deepEqual(reportedChecks, expectedChecks, result.output);
     assert.deepEqual(fixture.requests, [
       "GET /api/healthz",
-      "GET /api/__clerk/v1/environment",
+      "GET /v1/environment",
       "GET /api/tutors",
       "GET /api/resources",
       "GET /",

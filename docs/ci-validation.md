@@ -81,11 +81,10 @@ authentication through the `@clerk/express.auth` symbol, the web tests render
 under JSDOM, and `test:smoke` exercises the smoke scripts' own logic rather
 than launching them against a running host.
 
-The one check that depends on a live Clerk instance is the Frontend API proxy
-assertion in the launch smoke check, which runs against the Deployment and uses
-its own configured keys rather than anything CI supplies. Development smoke
-skips it, because the API server enables the proxy only in production, and the
-deploy job waives it while the Deployment is on a development Clerk instance.
+The one check that depends on a live Clerk instance is the launch smoke
+check's request to the production instance's `/v1/environment`, which goes to
+Clerk directly and needs no keys at all. Development smoke skips it, because a
+local stack runs on a development instance with no `clerk.` CNAME to check.
 
 The dedicated test database is therefore the only external dependency the
 deterministic gate has.
@@ -133,7 +132,9 @@ Enquiry. It needs `SMOKE_CHROMIUM_PATH`, which is why it is not in CI.
 The deploy job finishes by running the launch smoke against the live site:
 
 ```sh
-SMOKE_BASE_URL=https://welltutored.co.uk pnpm run smoke:launch:incomplete
+SMOKE_BASE_URL=https://welltutored.co.uk \
+  SMOKE_CLERK_FRONTEND_API=https://clerk.welltutored.co.uk \
+  pnpm run smoke:launch:incomplete
 ```
 
 CI also sets `SMOKE_REDIRECT_FROM` to the Deployment's other hostnames, so the
@@ -143,13 +144,12 @@ A successful Deploy does not mean a usable Deployment, which is why this runs
 at all. The check fails if the site is unhealthy or redirects to another
 origin.
 
-`smoke:launch:incomplete` is the ordinary launch smoke with two waivers, for
-the two conditions this Deployment is still in: it has no published content,
-and its Clerk instance is a development one. Each has its own end. When the
-last one goes, this becomes `pnpm run smoke:launch`.
+`smoke:launch:incomplete` is the ordinary launch smoke with one waiver, for the
+condition this Deployment is still in: it has no published content. Once it
+has, this becomes `pnpm run smoke:launch`.
 
 **This step is expected to pass, including while the Deployment is empty** —
-the waivers are exactly what make that true. So a red Launch smoke on a merge
+the waiver is exactly what makes that true. So a red Launch smoke on a merge
 to `main` is a real failure: an unhealthy site, a redirect to another origin, a
 broken public page. It is not the known-empty state, and it is not something to
 wave through. Only the flagless `pnpm run smoke:launch`, run by hand, fails on

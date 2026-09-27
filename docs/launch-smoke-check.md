@@ -4,17 +4,24 @@ The Launch Smoke asserts that a Deployment is *usable*, which a successful
 Deploy does not imply. It needs no workspace credentials and writes nothing.
 
 ```sh
-SMOKE_BASE_URL=https://welltutored.co.uk pnpm smoke:launch
+SMOKE_BASE_URL=https://welltutored.co.uk \
+  SMOKE_CLERK_FRONTEND_API=https://clerk.welltutored.co.uk pnpm smoke:launch
 ```
 
 `SMOKE_BASE_URL` is required and has no default. Nothing infers the target: the
 Deployment's origin is committed in `fly.toml`, and a check that picks its own
 target is one that can report on a site nobody asked about.
 
+`SMOKE_CLERK_FRONTEND_API` is required too, except with `--dev`: it is the
+origin of the Clerk production instance, the `clerk.` CNAME on the Deployment's
+domain. It must be a bare origin, and is validated before any request.
+
 ## What it checks
 
 - the API health response at `/api/healthz`;
-- the Clerk Frontend API proxy at `/api/__clerk/v1/environment`;
+- Clerk's `/v1/environment` at `SMOKE_CLERK_FRONTEND_API`, requested directly
+  from Clerk, which must answer as a `production` instance — so a broken CNAME,
+  a lapsed certificate or a development key shipped by mistake all fail;
 - tutor and resource catalogue responses, including non-empty published data
   and the response fields used by public catalogue links;
 - the public home, resources, enquiry, tutor-profile, and resource-detail
@@ -49,27 +56,27 @@ the configuration reference in [deploy.md](deploy.md#configuration-reference).
 
 ## Waivers
 
-Three flags waive an assertion the target genuinely cannot meet. Each is named
+Two flags waive an assertion the target genuinely cannot meet. Each is named
 for the condition under which passing it is correct, not for what it skips, so
 a stale one reads as a bug rather than as configuration. A waived check is
 reported as skipped rather than silently dropped.
 
 | Flag | Waives | Ends when |
 | --- | --- | --- |
-| `--dev` | the Clerk proxy check, which the API enables only in production | never; development is a permanent mode |
+| `--dev` | the Clerk check, since a local stack runs on a development instance with no `clerk.` CNAME to check | never; development is a permanent mode |
 | `--allow-empty` | the non-empty assertions on `/api/tutors`, `/api/resources` and the pages that address a Tutor or Resource by slug | the Deployment has published content |
-| `--dev-clerk-instance` | the Clerk proxy check, which answers `host_invalid` for a development instance whatever the Deployment's health | the Deployment moves to a production Clerk instance |
 
 Two scripts wrap them:
 
 ```sh
 SMOKE_BASE_URL=http://prod:8080 pnpm smoke:dev
-SMOKE_BASE_URL=https://welltutored.co.uk pnpm smoke:launch:incomplete
+SMOKE_BASE_URL=https://welltutored.co.uk \
+  SMOKE_CLERK_FRONTEND_API=https://clerk.welltutored.co.uk pnpm smoke:launch:incomplete
 ```
 
-`smoke:launch:incomplete` carries the last two flags together and is what the
-deploy job in `.github/workflows/ci.yml` runs. When both conditions have ended
-it becomes `pnpm run smoke:launch`, and the two script entries go with it.
+`smoke:launch:incomplete` carries `--allow-empty` and is what the deploy job in
+`.github/workflows/ci.yml` runs. Once the Deployment has content it becomes
+`pnpm run smoke:launch`, and the script entry goes with it.
 
 ## Timeout controls
 

@@ -4,7 +4,7 @@
 - [Mutation submission races](mutation-submission-races.md) — use a synchronous in-flight latch when repeated events can arrive before React mutation state rerenders.
 - [Public/auth startup boundary](public-auth-boundary.md) — keep public route modules Clerk-free and defer auth/workspace code behind path-based lazy loading.
 - [JSDOM page test harness](jsdom-page-test-harness.md) — install global location/history/event listeners when rendering Wouter pages with tsx and JSDOM.
-- [Development smoke checks](development-smoke-checks.md) — dev Clerk proxying is intentionally disabled, so dev smoke skips only that production assertion; every mode needs an explicit target.
+- [Development smoke checks](development-smoke-checks.md) — a local stack has no Clerk production instance, so dev smoke skips only that check; every mode needs an explicit target.
 - [Deploy does not touch the database](deployment-build-database-target.md) — the Deploy job never applies the schema or runs mutating tests against it.
 - [Clean integration fixtures](clean-integration-fixtures.md) — lifecycle tests must create every baseline row they assert against; isolated databases do not contain application seed data.
 - [PostgreSQL data snapshots](postgres-data-snapshots.md) — raw pg_dump output is not stable enough for before/after mutation checks; hash normalized catalog-derived row summaries instead.
