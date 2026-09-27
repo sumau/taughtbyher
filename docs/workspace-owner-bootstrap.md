@@ -11,8 +11,10 @@ updated to enforce it.
 
 ## When this is needed
 
-Use this process only when a development database has no owner account, such as
-after the database is first created or restored from an empty state. It is a
+Use this process only when a database has no owner account, such as after the
+database is first created or restored from an empty state. Development follows
+the procedure below; the Deployment follows the
+[production procedure](#production-procedure). It is a
 one-time provisioning step, not application startup behavior.
 
 ## Development procedure
@@ -50,10 +52,37 @@ steps 3 and 4 go through `psql` in the `db` service — see
 [Local Docker development](local-docker.md) for the exact commands, including
 a `+clerk_test` address that needs no real mailbox.
 
+## Production procedure
+
+Approved on 2026-09-27 for the Deployment's first owner, until an automated
+bootstrap replaces it ([#48](https://github.com/sumau/welltutored/issues/48)).
+It is the same guarded update, run against the **direct** Neon connection
+string from a checkout, with the same preconditions: the owner has signed in
+once at the Public Origin, and no owner exists yet.
+
+```
+read -rsp 'Direct DATABASE_URL: ' DATABASE_URL; echo
+docker compose run --rm -T -e DATABASE_URL="$DATABASE_URL" --entrypoint bash migrate \
+  -lc 'psql "$DATABASE_URL" -v ON_ERROR_STOP=1 -v email=you@example.com' <<'SQL'
+\conninfo
+UPDATE workspace_accounts
+SET role = 'owner', updated_at = NOW()
+WHERE lower(email) = lower(:'email')
+  AND role = 'pending'
+  AND NOT EXISTS (SELECT 1 FROM workspace_accounts WHERE role = 'owner')
+RETURNING id, email, role;
+SQL
+```
+
+Read the `\conninfo` line: it must name the Neon host. `UPDATE 1` with the
+owner's row means it worked. `UPDATE 0` means a guard held: no pending row for
+that email (sign in first), or an owner already exists. Sign out and back in to
+see the owner's Workspace.
+
 ## Safety rules
 
-- Run this against the development database only unless a separate production
-  recovery procedure has been explicitly approved.
+- Run this against the development database, or against production under the
+  procedure above; no other production use is approved.
 - Do not add automatic owner elevation to server startup or normal login
   handling.
 - Do not run the update if an owner already exists.
