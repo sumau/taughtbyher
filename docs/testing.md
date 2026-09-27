@@ -165,8 +165,6 @@ pnpm run build
 
 The build first checks documented commands, then type-checks libraries and
 workspace packages, and finally builds the packages that define a build script.
-The mockup sandbox has no test script; it is covered by its TypeScript
-type-check and build when those workspace checks run.
 
 ## Launch and browser smoke checks
 
