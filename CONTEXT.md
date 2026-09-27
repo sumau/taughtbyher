@@ -65,9 +65,14 @@ _Avoid_: Favourite, bookmark, pin
 ### Delivery
 
 **Deployment**:
-The running instance serving the site — one origin serving both the frontend
-and the API.
+The running instance serving the site — one Public Origin serving both the
+frontend and the API.
 _Avoid_: Publish, publication, the app, the environment
+
+**Public Origin**:
+The one origin the Deployment is known by. Every other hostname that reaches
+the Deployment redirects there.
+_Avoid_: Primary domain, main URL, canonical domain
 
 **Deploy**:
 The act of shipping the current `main` to the Deployment.

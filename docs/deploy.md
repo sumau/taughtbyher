@@ -184,8 +184,9 @@ return buildPublishableKey(`clerk.${hostname}`);
   production instance asks you to add, so it requires a domain of your own.
 
 So stand the Deployment up on development keys, and move to a production
-instance when you attach a real domain — at which point `TRUSTED_ORIGINS` and
-`app` in `fly.toml` become that domain too, and they change together.
+instance when you attach a real domain. `TRUSTED_ORIGINS` and `PUBLIC_ORIGIN`
+change with the domain; `app` in `fly.toml` does not, because it is the Fly
+app's name rather than a hostname, and changing it means creating a new app.
 Development instances show a notice in the sign-in UI, share Clerk's OAuth
 credentials, and carry lower limits, so they are for getting the Deployment
 working rather than for live traffic.
@@ -270,6 +271,7 @@ and is how you would ship a first image before any of this is merged.
 | --- | --- | --- |
 | `DATABASE_URL` | runtime, required | Append `?sslmode=require` for a hosted database: `lib/db/src/index.ts` creates a bare `pg` pool with no SSL options of its own. |
 | `TRUSTED_ORIGINS` | runtime, required | The exact public origin, e.g. `https://welltutored.fly.dev`. See below. |
+| `PUBLIC_ORIGIN` | runtime, optional | The Public Origin, e.g. `https://welltutored.example`. When set, a request arriving on any other hostname gets a `301` to the same path and query there; `/api/healthz` is exempt, because Fly's health checks do not use the public hostname. It must also appear in `TRUSTED_ORIGINS`, or the server refuses to start. Unset, nothing redirects. |
 | `PORT` | runtime, required | The image defaults it to `8080`. |
 | `WEB_CLIENT_ROOT` | runtime, required | The directory holding the frontend build; `docker/Dockerfile` sets it to `/app/web`. Leaving it unset makes the server skip serving the frontend entirely, so every page answers 404 while `/api/healthz` stays green. It logs a warning in that state. |
 | `CLERK_SECRET_KEY` | runtime, required | Not optional: the Clerk middleware fails every `/api` request with a 500 when it is absent, public endpoints included. A production key enables the Clerk proxy and workspace sign-in; a syntactically valid placeholder (`sk_test_` + 32 characters, as in `.env.example`) is enough to serve the public site. |
