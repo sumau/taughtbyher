@@ -3,6 +3,7 @@ import { fileURLToPath } from "node:url";
 
 const BASE_URL_ENV_KEY = "SMOKE_BASE_URL";
 const REDIRECT_FROM_ENV_KEY = "SMOKE_REDIRECT_FROM";
+const CLERK_FRONTEND_API_ENV_KEY = "SMOKE_CLERK_FRONTEND_API";
 // A page path with a query, so a redirect that drops either is caught.
 const REDIRECT_PROBE_PATH = "/resources?smoke=redirect";
 export const SMOKE_TIMEOUT_MIN_MS = 100;
@@ -13,17 +14,14 @@ const DEFAULT_TIMEOUT_MS = 15_000;
 const DEFAULT_TOTAL_TIMEOUT_MS = 60_000;
 const SMOKE_TIMEOUT_FORMAT = /^\d+$/;
 const DEVELOPMENT_CHECK_FLAG = "--dev";
-// Both waivers are named for the condition under which passing them is
-// correct, not for what they skip: a stale one in CI should read as a bug.
+// Named for the condition under which passing it is correct, not for what it
+// skips: a stale one in CI should read as a bug.
 const EMPTY_CONTENT_CHECK_FLAG = "--allow-empty";
-const DEVELOPMENT_CLERK_INSTANCE_FLAG = "--dev-clerk-instance";
 
 type JsonRecord = Record<string, unknown>;
 
 type SmokeCheckModes = {
-  isDevelopmentCheck: boolean;
   allowsEmptyContent: boolean;
-  hasDevelopmentClerkInstance: boolean;
 };
 
 type ResponseData = {
@@ -231,6 +229,33 @@ export function resolveRedirectSources(baseUrl: URL): URL[] {
   });
 }
 
+/**
+ * The origin of the Deployment's Clerk production instance, such as
+ * https://clerk.welltutored.co.uk. Required for a launch check, because
+ * workspace sign-in is part of a usable Deployment; a development check has no
+ * production instance to point at, so it neither needs nor reads one.
+ */
+export function resolveClerkFrontendApi(
+  isDevelopmentCheck: boolean,
+): URL | undefined {
+  if (isDevelopmentCheck) return undefined;
+  const configured = process.env[CLERK_FRONTEND_API_ENV_KEY]?.trim();
+  if (!configured) {
+    throw new SmokeCheckError(
+      `${CLERK_FRONTEND_API_ENV_KEY} must name the Clerk production instance's ` +
+        `Frontend API, such as https://clerk.welltutored.co.uk. Pass --dev ` +
+        `for a target without one.`,
+    );
+  }
+  const frontendApi = parseHttpUrl(configured, CLERK_FRONTEND_API_ENV_KEY);
+  if (frontendApi.pathname !== "/" || frontendApi.search || frontendApi.hash) {
+    throw new SmokeCheckError(
+      `${CLERK_FRONTEND_API_ENV_KEY} must be a bare origin; received "${configured}".`,
+    );
+  }
+  return frontendApi;
+}
+
 export function resolveTimeoutMs(): number {
   const rawConfigured = process.env.SMOKE_TIMEOUT_MS;
   const configured =
@@ -397,9 +422,50 @@ async function checkRedirect(
   return label;
 }
 
+/**
+ * Requested from Clerk directly, so a failure here is the instance or its
+ * clerk.<domain> CNAME and certificate, not the Deployment. The environment
+ * type catches a development key shipped by mistake: it would still answer.
+ */
+async function checkClerkFrontendApi(
+  frontendApi: URL,
+  timeoutMs: number,
+  deadline: SmokeDeadline,
+) {
+  const label = new URL("/v1/environment", frontendApi).toString();
+  const data = await request(
+    frontendApi,
+    "/v1/environment",
+    timeoutMs,
+    undefined,
+    deadline,
+  );
+  expectStatus(data, 200, label);
+  const environment = requireRecord(parseJson(data, label), label);
+  const authConfig = requireRecord(
+    environment.auth_config,
+    `${label} auth_config`,
+  );
+  const displayConfig = requireRecord(
+    environment.display_config,
+    `${label} display_config`,
+  );
+  if (authConfig.object !== "auth_config") {
+    throw new SmokeCheckError(`${label}: unexpected auth_config object.`);
+  }
+  if (displayConfig.instance_environment_type !== "production") {
+    throw new SmokeCheckError(
+      `${label}: expected a production instance, received ` +
+        `"${String(displayConfig.instance_environment_type)}".`,
+    );
+  }
+  return label;
+}
+
 async function runSmokeCheckSteps(
   baseUrl: URL,
   redirectSources: URL[],
+  clerkFrontendApi: URL | undefined,
   timeoutMs: number,
   deadline: SmokeDeadline,
   modes: SmokeCheckModes,
@@ -416,47 +482,12 @@ async function runSmokeCheckSteps(
   }
   passed.push("/api/healthz");
 
-  if (modes.isDevelopmentCheck) {
-    skipped.push(
-      "/api/__clerk/v1/environment (Clerk proxy is production-only)",
-    );
-  } else if (modes.hasDevelopmentClerkInstance) {
-    // The proxy attributes a request to an instance by the host in
-    // Clerk-Proxy-Url. A development instance has no such host registered, so
-    // Clerk answers host_invalid however healthy the Deployment is.
-    skipped.push(
-      "/api/__clerk/v1/environment (Deployment is on a development Clerk instance)",
+  if (clerkFrontendApi) {
+    passed.push(
+      await checkClerkFrontendApi(clerkFrontendApi, timeoutMs, deadline),
     );
   } else {
-    const clerkEnvironment = requireRecord(
-      await checkJson(
-        baseUrl,
-        "/api/__clerk/v1/environment",
-        timeoutMs,
-        200,
-        deadline,
-      ),
-      "/api/__clerk/v1/environment",
-    );
-    const clerkAuthConfig = requireRecord(
-      clerkEnvironment.auth_config,
-      "/api/__clerk/v1/environment.auth_config",
-    );
-    const clerkDisplayConfig = requireRecord(
-      clerkEnvironment.display_config,
-      "/api/__clerk/v1/environment.display_config",
-    );
-    if (clerkAuthConfig.object !== "auth_config") {
-      throw new SmokeCheckError(
-        `/api/__clerk/v1/environment: unexpected auth_config object.`,
-      );
-    }
-    if (clerkDisplayConfig.object !== "display_config") {
-      throw new SmokeCheckError(
-        `/api/__clerk/v1/environment: unexpected display_config object.`,
-      );
-    }
-    passed.push("/api/__clerk/v1/environment");
+    skipped.push("Clerk Frontend API (development check)");
   }
 
   const tutors = requireArray(
@@ -615,18 +646,21 @@ async function runSmokeCheckSteps(
 export async function runSmokeCheck() {
   const baseUrl = resolveBaseUrl();
   const redirectSources = resolveRedirectSources(baseUrl);
+  const isDevelopmentCheck = process.argv.includes(DEVELOPMENT_CHECK_FLAG);
+  const clerkFrontendApi = resolveClerkFrontendApi(isDevelopmentCheck);
   const timeoutMs = resolveTimeoutMs();
   const totalTimeoutMs = resolveTotalTimeoutMs();
   const deadline = createSmokeDeadline(totalTimeoutMs);
 
   try {
-    await runSmokeCheckSteps(baseUrl, redirectSources, timeoutMs, deadline, {
-      isDevelopmentCheck: process.argv.includes(DEVELOPMENT_CHECK_FLAG),
-      allowsEmptyContent: process.argv.includes(EMPTY_CONTENT_CHECK_FLAG),
-      hasDevelopmentClerkInstance: process.argv.includes(
-        DEVELOPMENT_CLERK_INSTANCE_FLAG,
-      ),
-    });
+    await runSmokeCheckSteps(
+      baseUrl,
+      redirectSources,
+      clerkFrontendApi,
+      timeoutMs,
+      deadline,
+      { allowsEmptyContent: process.argv.includes(EMPTY_CONTENT_CHECK_FLAG) },
+    );
   } finally {
     deadline.close();
   }

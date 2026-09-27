@@ -138,18 +138,18 @@ jobs:
       # A Deploy succeeding does not mean the Deployment is usable. The launch
       # smoke is fetch-based, so no browser is needed here.
       #
-      # "incomplete" is the two conditions this Deployment is still in, each
-      # waived by its own flag in the script and each with its own end: it has
-      # no published content, and its Clerk instance is a development one. When
-      # the last flag goes, this becomes `pnpm run smoke:launch` and the two
-      # script entries go with it.
+      # "incomplete" is the one condition this Deployment is still in, waived
+      # by --allow-empty in the script: it has no published content. When it
+      # has, this becomes `pnpm run smoke:launch` and the script entry goes.
       #
       # SMOKE_REDIRECT_FROM is every other hostname the Deployment answers on;
       # each must redirect permanently to the Public Origin, so a lapsed
-      # certificate or a broken DNS record fails here.
+      # certificate or a broken DNS record fails here. SMOKE_CLERK_FRONTEND_API
+      # is the Clerk production instance's CNAME, checked the same way.
       - name: Launch smoke
         env:
           SMOKE_BASE_URL: https://welltutored.co.uk
+          SMOKE_CLERK_FRONTEND_API: https://clerk.welltutored.co.uk
           SMOKE_REDIRECT_FROM: >-
             https://www.welltutored.co.uk
             https://welltutored.com

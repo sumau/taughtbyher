@@ -1,3 +1,4 @@
+import type { IncomingHttpHeaders } from "node:http";
 import express, { type Express } from "express";
 import cors from "cors";
 import pinoHttp from "pino-http";
@@ -14,11 +15,21 @@ import {
 } from "./middlewares/request-origin";
 import { apiErrorHandler } from "./middlewares/api-error-handler";
 import { redirectToPublicOrigin } from "./middlewares/public-origin";
-import {
-  CLERK_PROXY_PATH,
-  clerkProxyMiddleware,
-  getClerkProxyHost,
-} from "./middlewares/clerkProxyMiddleware";
+
+/**
+ * The client-facing hostname: x-forwarded-host when a proxy set it, else Host.
+ * When an upstream appended to x-forwarded-host rather than replacing it, the
+ * leftmost value is the original. Clerk derives the production publishable key
+ * from this hostname, so it must be the one the browser used.
+ */
+function getPublicHost(req: {
+  headers: IncomingHttpHeaders;
+}): string | undefined {
+  const forwarded = req.headers["x-forwarded-host"];
+  const raw = Array.isArray(forwarded) ? forwarded[0] : forwarded;
+  const firstHop = raw?.split(",")[0]?.trim();
+  return firstHop || req.headers.host?.trim() || undefined;
+}
 
 const app: Express = express();
 
@@ -44,7 +55,6 @@ app.use(
 // Before everything that answers a request, so a visitor on any other hostname
 // is sent to the Public Origin rather than served from the one they typed.
 app.use(redirectToPublicOrigin());
-app.use(CLERK_PROXY_PATH, clerkProxyMiddleware());
 app.use(
   cors({
     credentials: true,
@@ -81,7 +91,7 @@ app.use(
   "/api",
   clerkMiddleware((req) => ({
     publishableKey: publishableKeyFromHost(
-      getClerkProxyHost(req) ?? "",
+      getPublicHost(req) ?? "",
       process.env.CLERK_PUBLISHABLE_KEY,
     ),
   })),

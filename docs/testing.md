@@ -20,9 +20,9 @@ flowchart TB
     ci["CI: verify job<br/>verify:ci"] --> ciHelpers["test:smoke<br/>smoke-check.test.ts"]
     ci --> ciDb["Temporary PostgreSQL database<br/>for API lifecycle integration tests"]
     deploy["CI: deploy job<br/>push to main"] --> flyDeploy["flyctl deploy"]
-    flyDeploy --> deployLaunch["smoke:launch:incomplete<br/>--allow-empty --dev-clerk-instance"]
+    flyDeploy --> deployLaunch["smoke:launch:incomplete<br/>--allow-empty"]
     deployLaunch --> deployTarget["https://welltutored.co.uk<br/>SMOKE_BASE_URL"]
-    deployTarget --> deployCoverage["Health, catalogue, public pages,<br/>invalid-enquiry recovery<br/>content and Clerk proxy waived"]
+    deployTarget --> deployCoverage["Health, catalogue, public pages,<br/>invalid-enquiry recovery,<br/>Clerk production instance<br/>content waived"]
   end
 
   subgraph development["Live development smoke"]
@@ -30,7 +30,7 @@ flowchart TB
     manualDev --> devBrowser["smoke:enquiry<br/>needs SMOKE_CHROMIUM_PATH"]
     devLaunch --> devTarget["http://localhost:5173<br/>Vite dev server, proxying /api"]
     devBrowser --> devTarget
-    devLaunch --> devCoverage["Health, catalogue, public pages,<br/>invalid-enquiry recovery<br/>Clerk proxy check skipped"]
+    devLaunch --> devCoverage["Health, catalogue, public pages,<br/>invalid-enquiry recovery<br/>Clerk check skipped"]
     devBrowser --> devBrowserCoverage["Keyboard flow, validation,<br/>retry, success receipt<br/>requests intercepted"]
   end
 
@@ -49,7 +49,7 @@ In short:
   does not contact a live site.
 - `smoke:dev` and `smoke:enquiry` run manually against the local stack.
 - `smoke:launch:incomplete` runs automatically in the deploy job. `smoke:launch`
-  is the same check without the waivers, and is what to run by hand once the
+  is the same check without the waiver, and is what to run by hand once the
   Deployment has content.
 - Every mode requires `SMOKE_BASE_URL`; nothing has a default target.
 - The browser enquiry checks intercept the submission response, so they do not
@@ -176,11 +176,12 @@ workspace packages, and finally builds the packages that define a build script.
 ## Launch and browser smoke checks
 
 The non-mutating launch smoke check verifies a running target's API health,
-Clerk environment proxy, published tutor and resource catalogue data, public
+Clerk production instance, published tutor and resource catalogue data, public
 pages, invalid-enquiry validation, and recovery health check:
 
 ```sh
-SMOKE_BASE_URL=https://welltutored.co.uk pnpm smoke:launch
+SMOKE_BASE_URL=https://welltutored.co.uk \
+  SMOKE_CLERK_FRONTEND_API=https://clerk.welltutored.co.uk pnpm smoke:launch
 ```
 
 `SMOKE_BASE_URL` is required in every mode and has no default. It does not

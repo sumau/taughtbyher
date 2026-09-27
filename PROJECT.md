@@ -16,7 +16,7 @@ decisions a reader will question are in [docs/adr/](docs/adr/).
   current schema to the dedicated integration-test database
 - Required env: `DATABASE_URL` for PostgreSQL access; `VITE_CLERK_PUBLISHABLE_KEY` for the Well Tutored frontend; and `CLERK_PUBLISHABLE_KEY` for the API's Clerk middleware
 - Integration tests require a separate `TEST_DATABASE_URL`. The integration test script sets `NODE_ENV=test`, so the database package uses `TEST_DATABASE_URL` only for that process and rejects a test URL identical to `DATABASE_URL`. `pnpm run verify:ci` provisions a temporary local PostgreSQL connection when no dedicated URL is supplied, or uses the supplied dedicated URL, then applies the current schema before running the API suite.
-- Production-only API env: `CLERK_SECRET_KEY` enables the Clerk Frontend API proxy used by the Deployment. It is not required for development previews.
+- `CLERK_SECRET_KEY` is required by the API's Clerk middleware even for the public site; a placeholder serves it, and a real key enables workspace sign-in. The Deployment runs on a Clerk production instance at `clerk.welltutored.co.uk`, with no Frontend API proxy.
 
 Everything above runs in containers here — see
 [docs/local-docker.md](docs/local-docker.md) for the prefixes.
@@ -78,6 +78,3 @@ The public experience presents women tutors educated at Russell Group universiti
 - Run `pnpm --filter @workspace/api-spec run codegen` after changing `lib/api-spec/openapi.yaml`.
 - The Vite configs default artifact `PORT` and `BASE_PATH`; compose and the
   images override them.
-- The Deployment still runs on a development Clerk instance, which is why the
-  launch smoke in CI waives the Clerk proxy assertion. Moving to a production
-  instance on `welltutored.co.uk` is issue #43.

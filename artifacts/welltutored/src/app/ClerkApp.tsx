@@ -4,7 +4,7 @@ import { ClerkProvider, useClerk } from "@clerk/react";
 import { shadcn } from "@clerk/themes";
 import { useLocation } from "wouter";
 import "@clerk/themes/shadcn.css";
-import { basePath, clerkProxyUrl, clerkPubKey, stripBase } from "./config";
+import { basePath, clerkPubKey, stripBase } from "./config";
 
 function ClerkQueryClientCacheInvalidator() {
   const { addListener } = useClerk();
@@ -33,7 +33,6 @@ export function ClerkApp({ children }: { children: ReactNode }) {
   return (
     <ClerkProvider
       publishableKey={clerkPubKey}
-      proxyUrl={clerkProxyUrl}
       signInUrl={`${basePath}/sign-in`}
       signUpUrl={`${basePath}/sign-up`}
       appearance={{
