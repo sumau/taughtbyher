@@ -268,15 +268,24 @@ In this order, so the server's keys and the bundle's key change in one deploy:
    deploy picks up the staged secrets, and the launch smoke checks
    `https://clerk.<domain>/v1/environment` for a production instance.
 
-A Clerk user ID belongs to its instance, so workspace accounts do not carry
-over. Tutors, resources, drafts and enquiries are untouched — none of them
-reference Clerk. Rows in `workspace_accounts` created on the old instance are
-the exception: signing in on the new one creates a second, pending account, and
-a stale `owner` row makes the `UPDATE` in
-[workspace-owner-bootstrap.md](workspace-owner-bootstrap.md) a no-op, since it
-is guarded by `AND NOT EXISTS (SELECT 1 FROM workspace_accounts WHERE role =
-'owner')`. Delete the old instance's rows first, then sign in on the new
-instance and promote again.
+Tutors, resources, drafts and enquiries are untouched — none of them reference
+Clerk. Rows in `workspace_accounts` still carry the old instance's user IDs,
+since a Clerk user ID belongs to its instance. They keep working: a sign-in
+whose user ID matches no row falls back to the verified email, and reuses that
+row, role and tutor included, without rewriting its `clerk_user_id`. So nothing
+has to be done before the switch.
+
+Afterwards, look at what is there:
+
+```
+docker compose run --rm -e DATABASE_URL="$DATABASE_URL" --entrypoint bash migrate \
+  -lc 'psql "$DATABASE_URL" -c "SELECT id, clerk_user_id, email, role, tutor_id, created_at FROM workspace_accounts ORDER BY id"'
+```
+
+A `pending` row from the old instance can be deleted; the next sign-in writes
+a fresh one with the new user ID. Do not delete an `owner` or `tutor` row, which
+would lose the role and the tutor link: set its `clerk_user_id` to the new ID,
+from Users in the Clerk dashboard, instead.
 
 ## Fly.io
 
