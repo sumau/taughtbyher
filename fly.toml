@@ -4,8 +4,8 @@
 # the secrets this file deliberately omits.
 #
 # Create the app with `fly apps create`, which only reserves the name; `fly
-# launch` rewrites this file from its own guesses. Update `app` and
-# TRUSTED_ORIGINS together — they must name the same hostname.
+# launch` rewrites this file from its own guesses. `app` is the Fly app's name,
+# not a hostname: the domain lives in PUBLIC_ORIGIN and TRUSTED_ORIGINS below.
 
 app = "welltutored"
 primary_region = "lhr"
@@ -21,9 +21,13 @@ primary_region = "lhr"
 
 [env]
   PORT = "8080"
-  # The exact public origin. Nothing infers it, and an empty
-  # trusted-origin set rejects every credentialed request, enquiries included.
-  TRUSTED_ORIGINS = "https://welltutored.fly.dev"
+  # The Public Origin. Every other hostname — www, the .com, welltutored.fly.dev
+  # — is redirected here, and the server refuses to start unless
+  # TRUSTED_ORIGINS names it too.
+  PUBLIC_ORIGIN = "https://welltutored.co.uk"
+  # The exact origins allowed to make credentialed requests. Nothing infers
+  # them, and an empty set rejects every one, enquiries included.
+  TRUSTED_ORIGINS = "https://welltutored.co.uk"
 
 [http_service]
   internal_port = 8080

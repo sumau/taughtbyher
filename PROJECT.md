@@ -31,6 +31,11 @@ launch smoke against it; nothing else deploys. `docker/Dockerfile` and
 Schema changes are not part of that. Apply them yourself, before merging
 anything that expects them — [ADR-0002](docs/adr/0002-schema-by-deliberate-push.md).
 
+The Deployment is served at `https://welltutored.co.uk`, its Public Origin.
+`www.welltutored.co.uk`, `welltutored.com`, `www.welltutored.com` and
+`welltutored.fly.dev` all redirect there, because `PUBLIC_ORIGIN` in `fly.toml`
+says so.
+
 The trap worth knowing: `TRUSTED_ORIGINS` must name the public origin exactly.
 Nothing infers it, and an empty trusted-origin set rejects every credentialed
 request, the public enquiry included.
@@ -73,5 +78,6 @@ The public experience presents women tutors educated at Russell Group universiti
 - Run `pnpm --filter @workspace/api-spec run codegen` after changing `lib/api-spec/openapi.yaml`.
 - The Vite configs default artifact `PORT` and `BASE_PATH`; compose and the
   images override them.
-- The Deployment runs on a development Clerk instance until a custom domain
-  exists, which is why the launch smoke in CI waives the Clerk proxy assertion.
+- The Deployment still runs on a development Clerk instance, which is why the
+  launch smoke in CI waives the Clerk proxy assertion. Moving to a production
+  instance on `welltutored.co.uk` is issue #43.

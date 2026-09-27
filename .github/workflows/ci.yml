@@ -143,7 +143,16 @@ jobs:
       # no published content, and its Clerk instance is a development one. When
       # the last flag goes, this becomes `pnpm run smoke:launch` and the two
       # script entries go with it.
+      #
+      # SMOKE_REDIRECT_FROM is every other hostname the Deployment answers on;
+      # each must redirect permanently to the Public Origin, so a lapsed
+      # certificate or a broken DNS record fails here.
       - name: Launch smoke
         env:
-          SMOKE_BASE_URL: https://welltutored.fly.dev
+          SMOKE_BASE_URL: https://welltutored.co.uk
+          SMOKE_REDIRECT_FROM: >-
+            https://www.welltutored.co.uk
+            https://welltutored.com
+            https://www.welltutored.com
+            https://welltutored.fly.dev
         run: pnpm run smoke:launch:incomplete

@@ -311,12 +311,37 @@ The health check is already pointed at `/api/healthz`.
 After that, merging to `main` deploys. `fly deploy` from a checkout still works
 and is how you would ship a first image before any of this is merged.
 
+## Attaching a custom domain
+
+The Deployment starts on the `*.fly.dev` hostname `fly apps create` gives it.
+Moving it onto a domain of its own takes DNS, a certificate per hostname, and
+two lines of `fly.toml`, in that order. This is how `welltutored.co.uk` was
+attached, with `www.welltutored.co.uk`, `welltutored.com` and
+`www.welltutored.com` redirecting to it.
+
+1. **DNS.** For every hostname, an `A` record for the app's IPv4 address and an
+   `AAAA` record for its IPv6 address; `fly ips list` shows both. Where DNS is
+   on Cloudflare, set each record to **DNS only**: with Cloudflare's proxy in
+   front, Fly cannot issue its certificates without further setup.
+2. **Certificates.** `fly certs add <hostname>` for each one, then wait until
+   `fly certs list` shows every one `Issued`. Fly validates against the DNS
+   from step 1, so this cannot usefully come first.
+3. **`fly.toml`.** Set `PUBLIC_ORIGIN` to the domain visitors should end up on,
+   and `TRUSTED_ORIGINS` to the same value. Every other hostname, the
+   `*.fly.dev` one included, then answers with a `301` to the same path there.
+   Only after step 2: a redirect to a hostname without a certificate sends
+   every visitor to a browser warning.
+4. **Launch Smoke.** Point the deploy job's `SMOKE_BASE_URL` at the new origin
+   and list the other hostnames in `SMOKE_REDIRECT_FROM`.
+
+`app` in `fly.toml` stays as it is throughout.
+
 ## Configuration reference
 
 | Variable | When | Notes |
 | --- | --- | --- |
 | `DATABASE_URL` | runtime, required | Append `?sslmode=require` for a hosted database: `lib/db/src/index.ts` creates a bare `pg` pool with no SSL options of its own. |
-| `TRUSTED_ORIGINS` | runtime, required | The exact public origin, e.g. `https://welltutored.fly.dev`. See below. |
+| `TRUSTED_ORIGINS` | runtime, required | The exact public origin, e.g. `https://welltutored.co.uk`. See below. |
 | `PUBLIC_ORIGIN` | runtime, optional | The Public Origin, e.g. `https://welltutored.example`. When set, a request arriving on any other hostname gets a `301` to the same path and query there; `/api/healthz` is exempt, because Fly's health checks do not use the public hostname. It must also appear in `TRUSTED_ORIGINS`, or the server refuses to start. Unset, nothing redirects. |
 | `PORT` | runtime, required | The image defaults it to `8080`. |
 | `WEB_CLIENT_ROOT` | runtime, required | The directory holding the frontend build; `docker/Dockerfile` sets it to `/app/web`. Leaving it unset makes the server skip serving the frontend entirely, so every page answers 404 while `/api/healthz` stays green. It logs a warning in that state. |
@@ -366,7 +391,7 @@ things behave differently and neither is a fault:
   there is content, and delete the waived variant:
 
   ```
-  SMOKE_BASE_URL=https://welltutored.fly.dev pnpm run smoke:launch
+  SMOKE_BASE_URL=https://welltutored.co.uk pnpm run smoke:launch
   ```
 
 To get the illustrative tutors and resources without copying a database, point

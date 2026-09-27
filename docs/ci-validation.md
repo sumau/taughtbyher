@@ -133,8 +133,11 @@ Enquiry. It needs `SMOKE_CHROMIUM_PATH`, which is why it is not in CI.
 The deploy job finishes by running the launch smoke against the live site:
 
 ```sh
-SMOKE_BASE_URL=https://welltutored.fly.dev pnpm run smoke:launch:incomplete
+SMOKE_BASE_URL=https://welltutored.co.uk pnpm run smoke:launch:incomplete
 ```
+
+CI also sets `SMOKE_REDIRECT_FROM` to the Deployment's other hostnames, so the
+same run checks that each redirects to the Public Origin.
 
 A successful Deploy does not mean a usable Deployment, which is why this runs
 at all. The check fails if the site is unhealthy or redirects to another
