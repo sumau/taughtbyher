@@ -135,8 +135,8 @@ export default function WorkspaceTutorProfiles() {
     const nextAccountId = accountId === "none" ? null : Number(accountId);
     const currentAccount = accounts?.find((item) => item.tutorId === tutorId);
     const targetAccount = accounts?.find((item) => item.id === nextAccountId);
-    if (nextAccountId != null && (!targetAccount || targetAccount.role !== "tutor")) {
-      toast.error("Choose an approved tutor account.");
+    if (nextAccountId != null && (!targetAccount || targetAccount.role === "pending")) {
+      toast.error("Choose an approved account.");
       return;
     }
     const accountToUpdate = targetAccount ?? currentAccount;
@@ -351,7 +351,7 @@ export default function WorkspaceTutorProfiles() {
                                  {accounts
                                    ?.filter(
                                      (item) =>
-                                       item.role === "tutor" &&
+                                       item.role !== "pending" &&
                                        (item.tutorId == null ||
                                          item.tutorId === tutor.id),
                                    )
