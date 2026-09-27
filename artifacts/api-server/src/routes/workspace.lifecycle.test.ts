@@ -1080,3 +1080,60 @@ test("verified email reuses an existing workspace account across Clerk identitie
     .where(eq(workspaceAccountsTable.email, ownerEmail));
   assert.deepEqual(matchingAccounts, originalAccount);
 });
+test("owner can link their own account to a tutor profile and edit it", async () => {
+  const accounts = await request("/api/workspace/accounts", {}, ownerUserId);
+  const ownerAccount = accounts.body.find(
+    (item: { email: string }) => item.email === ownerEmail,
+  );
+  assert(ownerAccount);
+  const [secondTutor] = await db
+    .select({ id: tutorsTable.id })
+    .from(tutorsTable)
+    .where(eq(tutorsTable.name, secondTutorName));
+  assert(secondTutor);
+
+  const linked = await request(
+    `/api/workspace/accounts/${ownerAccount.id}`,
+    {
+      method: "PATCH",
+      body: JSON.stringify({ role: "owner", tutorId: secondTutor.id }),
+    },
+    ownerUserId,
+  );
+  assert.equal(linked.response.status, 200);
+  assert.equal(linked.body.role, "owner");
+  assert.equal(linked.body.tutorId, secondTutor.id);
+
+  const session = await request("/api/workspace/me", {}, ownerUserId);
+  assert.equal(session.body.role, "owner");
+  assert.equal(session.body.tutor.id, secondTutor.id);
+
+  const savedDraft = await request(
+    "/api/workspace/profile",
+    {
+      method: "PATCH",
+      body: JSON.stringify({ status: "draft", style: "Owner-edited style" }),
+    },
+    ownerUserId,
+  );
+  assert.equal(savedDraft.response.status, 200);
+  assert.equal(savedDraft.body.style, "Owner-edited style");
+
+  const discarded = await request(
+    "/api/workspace/profile/draft",
+    { method: "DELETE" },
+    ownerUserId,
+  );
+  assert.equal(discarded.response.status, 200);
+
+  const unlinked = await request(
+    `/api/workspace/accounts/${ownerAccount.id}`,
+    {
+      method: "PATCH",
+      body: JSON.stringify({ role: "owner", tutorId: null }),
+    },
+    ownerUserId,
+  );
+  assert.equal(unlinked.response.status, 200);
+  assert.equal(unlinked.body.tutorId, null);
+});
