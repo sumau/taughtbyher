@@ -205,7 +205,7 @@ and is worth doing once if this login is meant to last.
 
 - Debian (glibc), not Alpine: `pnpm-workspace.yaml` excludes every `*-musl`
   native binary, so a musl base cannot resolve lightningcss, Tailwind's oxide
-  binary, or rollup.
+  binary, or rolldown.
 - `linux/amd64`: the same overrides keep only the `linux-x64` esbuild binary.
 - pnpm is pinned in the image to the exact version in the root
   `package.json` `packageManager` field.

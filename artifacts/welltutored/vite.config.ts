@@ -30,7 +30,6 @@ function bundleReport(): Plugin {
       imports: string[];
       modules: Array<{
         id: string;
-        originalLength: number;
         renderedLength: number;
       }>;
     }>;
@@ -50,7 +49,6 @@ function bundleReport(): Plugin {
           modules: Object.entries(chunk.modules)
             .map(([id, module]) => ({
               id,
-              originalLength: module.originalLength,
               renderedLength: module.renderedLength,
             }))
             .sort((a, b) => b.renderedLength - a.renderedLength),
@@ -89,7 +87,7 @@ export default defineConfig({
   build: {
     outDir: path.resolve(import.meta.dirname, 'dist/public'),
     emptyOutDir: true,
-    rollupOptions: {
+    rolldownOptions: {
       plugins: [bundleReport()],
     },
   },

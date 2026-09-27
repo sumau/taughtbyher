@@ -7,7 +7,7 @@
 #
 # glibc (bookworm), not Alpine, and linux/amd64: pnpm-workspace.yaml prunes every
 # musl and non-x64 native binary (esbuild, lightningcss, @tailwindcss/oxide,
-# rollup) out of the lockfile, so no other base can resolve a frozen install.
+# rolldown) out of the lockfile, so no other base can resolve a frozen install.
 # Same constraint as docker/Dockerfile.dev and the CI runner.
 
 FROM --platform=linux/amd64 node:24-bookworm-slim AS build
