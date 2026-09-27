@@ -57,7 +57,7 @@ const profileSchema = z.object({
   style: z.string().min(2, "Teaching style is required"),
   teachingIntro: z.string().min(20, "Teaching introduction should be at least 20 characters").max(200, "Teaching approach must be 200 characters or fewer"),
   teachingPoints: z.array(teachingPointSchema).length(3),
-  rate: z.coerce.number().min(0, "Rate must be positive"),
+  rate: z.coerce.number<number>().min(0, "Rate must be positive"),
   availability: z.enum([
     TutorProfileUpdateAvailability.accepting,
     TutorProfileUpdateAvailability.limited,
