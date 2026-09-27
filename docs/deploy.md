@@ -107,7 +107,9 @@ Three things about that command:
 `push` prompts before anything destructive. Read the prompt, and review the diff
 of `lib/db/src/schema/` first — nothing downstream asks. Against an empty
 database there is nothing to drop, so a *truncate* prompt there means the
-connection string is not pointing where you think it is.
+connection string is not pointing where you think it is. When you are unsure
+what a push will do to existing rows, run it on a copy first — see
+[Rehearsing a push on a Neon branch](#rehearsing-a-push-on-a-neon-branch).
 
 **Renames are the exception, and they prompt on any database, empty or not.**
 `push` diffs states, so it cannot tell a renamed type or constraint from a
@@ -161,6 +163,50 @@ There are two ways to be somewhere you did not intend:
 
 On the Deployment `workspace_accounts` is empty until the owner bootstrap runs,
 so a non-zero count is itself a sign you are on the wrong database.
+
+## Rehearsing a push on a Neon branch
+
+A push you are unsure of — a rename, a dropped column, a new constraint on a
+table that already has rows — can be run against a copy of the Deployment
+database first. The local development database has seed content, not the
+Deployment's rows, so it cannot tell you whether a constraint holds against
+real data. A Neon branch can: it is a copy-on-write clone of the database at the
+moment you create it, made in seconds, with its own connection strings.
+
+1. **Create the branch.** In the Neon dashboard, open the project, go to
+   **Branches**, and create one from the branch the Deployment's
+   `DATABASE_URL` points at. Name it for what it is, e.g. `push-rehearsal`.
+2. **Take its direct connection string**, not the pooled one, and append
+   `?sslmode=require`, for the reasons under
+   [Applying the schema](#applying-the-schema).
+3. **Push to it** with the same command as a real push, and answer the prompts
+   as you intend to answer them for real:
+
+   ```
+   read -rsp 'Rehearsal branch DATABASE_URL: ' REHEARSAL_DATABASE_URL; echo
+
+   docker compose run --rm -e DATABASE_URL="$REHEARSAL_DATABASE_URL" --entrypoint bash migrate \
+     -lc 'pnpm --filter @workspace/db run push'
+   ```
+
+   It is read as `REHEARSAL_DATABASE_URL` so that it cannot be confused with
+   the `DATABASE_URL` you export for the real push.
+4. **Check the result** with the `\conninfo` and `\dt` command above, passing
+   `"$REHEARSAL_DATABASE_URL"`. The host in `\conninfo` should be the branch's
+   endpoint, which differs from the Deployment's. Query the tables the change
+   touches to confirm the rows came through as you expected.
+5. **Delete the branch** from the same **Branches** page. It shares storage
+   with its parent until either one diverges, so leaving it costs little at
+   first, but it counts towards the project's branch limit and goes stale.
+
+The branch is a disposable copy. Nothing you do to it reaches the Deployment,
+so a push that goes wrong there is the result you were looking for: fix the
+schema change, delete the branch, and branch again.
+
+Every push against Neon re-emits a drop and re-add of the `saved_resources`
+primary key and reports changes applied, on a branch as on the Deployment. That
+is a known `drizzle-kit` introspection quirk and harmless (issue #10). Any
+*other* statement in the output is the change you are rehearsing.
 
 ## Clerk keys
 
