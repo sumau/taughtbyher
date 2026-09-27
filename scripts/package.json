@@ -14,6 +14,7 @@
     "smoke:incomplete": "tsx ./src/smoke-check.ts --allow-empty --dev-clerk-instance",
     "smoke:enquiry": "tsx ./src/enquiry-browser-smoke.ts",
     "test:smoke": "tsx --test ./src/smoke-check.test.ts",
+    "test:docs": "tsx --test ./src/docs-check.test.ts",
     "typecheck": "tsc -p tsconfig.json --noEmit"
   },
   "devDependencies": {
