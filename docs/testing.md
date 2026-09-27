@@ -91,6 +91,8 @@ These checks cover:
 - Supported and legacy resource type normalization.
 - Request-origin normalization and protection against cross-site workspace
   mutations.
+- Resolution of the web client root the API serves, which is nothing unless
+  one is configured.
 
 The lifecycle tests exercise the Express routes and database-backed behavior
 end to end within the test process. They create, update, publish, and delete
@@ -138,16 +140,21 @@ production requests.
 
 ### Repository scripts
 
-The script package tests the smoke-check and documentation-check helpers:
+The script package has three test suites, all run by `verify:ci`:
 
 ```sh
 pnpm --filter @workspace/scripts run test:smoke
+pnpm --filter @workspace/scripts run test:docs
+pnpm run test:database-config
 ```
 
 The smoke-check tests validate target selection, the waiver flags in both
 directions, redirect protection, timeout handling, and healthy responses
 against a local fixture. The documentation tests ensure that `pnpm` commands —
-in the docs and in the workflows' `run:` steps — refer to real package scripts.
+in the docs and in the workflows' `run:` steps — refer to real package scripts,
+and that local links resolve. The database-config tests ensure that
+integration tests require a dedicated `TEST_DATABASE_URL` distinct from
+`DATABASE_URL`.
 
 ## Static verification
 
