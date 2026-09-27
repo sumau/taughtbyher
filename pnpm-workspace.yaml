@@ -39,7 +39,7 @@ catalog:
   '@types/node': ^25.9.8
   '@types/react': ^19.3.0
   '@types/react-dom': ^19.3.0
-  '@vitejs/plugin-react': ^5.2.0
+  '@vitejs/plugin-react': ^6.1.1
   class-variance-authority: ^0.7.1
   clsx: ^2.1.1
   drizzle-orm: ^0.45.3
@@ -49,7 +49,7 @@ catalog:
   tailwind-merge: ^3.7.0
   tailwindcss: ^4.3.3
   tsx: ^4.23.15
-  vite: ^7.3.6
+  vite: ^8.3.1
   wouter: ^3.3.5
   zod: ^4.6.5
 
@@ -111,30 +111,20 @@ overrides:
   "@tailwindcss/oxide>@tailwindcss/oxide-win32-arm64-msvc": "-"
   "@tailwindcss/oxide>@tailwindcss/oxide-win32-x64-msvc": "-"
   "@tailwindcss/oxide>@tailwindcss/oxide-linux-x64-musl": "-"
-  "rollup>@rollup/rollup-android-arm-eabi": "-"
-  "rollup>@rollup/rollup-android-arm64": "-"
-  "rollup>@rollup/rollup-darwin-arm64": "-"
-  "rollup>@rollup/rollup-darwin-x64": "-"
-  "rollup>@rollup/rollup-freebsd-arm64": "-"
-  "rollup>@rollup/rollup-freebsd-x64": "-"
-  "rollup>@rollup/rollup-linux-arm-gnueabihf": "-"
-  "rollup>@rollup/rollup-linux-arm-musleabihf": "-"
-  "rollup>@rollup/rollup-linux-arm64-gnu": "-"
-  "rollup>@rollup/rollup-linux-arm64-musl": "-"
-  "rollup>@rollup/rollup-linux-loong64-gnu": "-"
-  "rollup>@rollup/rollup-linux-loong64-musl": "-"
-  "rollup>@rollup/rollup-linux-ppc64-gnu": "-"
-  "rollup>@rollup/rollup-linux-ppc64-musl": "-"
-  "rollup>@rollup/rollup-linux-riscv64-gnu": "-"
-  "rollup>@rollup/rollup-linux-riscv64-musl": "-"
-  "rollup>@rollup/rollup-linux-s390x-gnu": "-"
-  "rollup>@rollup/rollup-linux-x64-musl": "-"
-  "rollup>@rollup/rollup-openbsd-x64": "-"
-  "rollup>@rollup/rollup-openharmony-arm64": "-"
-  "rollup>@rollup/rollup-win32-arm64-msvc": "-"
-  "rollup>@rollup/rollup-win32-ia32-msvc": "-"
-  "rollup>@rollup/rollup-win32-x64-gnu": "-"
-  "rollup>@rollup/rollup-win32-x64-msvc": "-"
+  "rolldown>@rolldown/binding-android-arm-eabi": "-"
+  "rolldown>@rolldown/binding-android-arm64": "-"
+  "rolldown>@rolldown/binding-darwin-arm64": "-"
+  "rolldown>@rolldown/binding-darwin-x64": "-"
+  "rolldown>@rolldown/binding-freebsd-x64": "-"
+  "rolldown>@rolldown/binding-linux-arm-gnueabihf": "-"
+  "rolldown>@rolldown/binding-linux-arm64-gnu": "-"
+  "rolldown>@rolldown/binding-linux-arm64-musl": "-"
+  "rolldown>@rolldown/binding-linux-ppc64-gnu": "-"
+  "rolldown>@rolldown/binding-linux-s390x-gnu": "-"
+  "rolldown>@rolldown/binding-linux-x64-musl": "-"
+  "rolldown>@rolldown/binding-openharmony-arm64": "-"
+  "rolldown>@rolldown/binding-win32-arm64-msvc": "-"
+  "rolldown>@rolldown/binding-win32-x64-msvc": "-"
   # drizzle-kit uses esbuild internally on an older version that's vulnerable, this overrides it
   "@esbuild-kit/esm-loader": "npm:tsx@^4.21.0"
   esbuild: "0.27.3"

@@ -1,7 +1,7 @@
 # Local development image for the Well Tutored workspace.
 #
 # glibc (bookworm), not Alpine: pnpm-workspace.yaml excludes every *-musl
-# native binary (lightningcss, @tailwindcss/oxide, rollup), so a musl base
+# native binary (lightningcss, @tailwindcss/oxide, rolldown), so a musl base
 # cannot resolve the platform packages the lockfile expects.
 #
 # linux/amd64: the same overrides keep only the linux-x64 esbuild binary.
