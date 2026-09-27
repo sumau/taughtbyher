@@ -118,6 +118,25 @@ overrides:
   rolldown>@rolldown/binding-openharmony-arm64: '-'
   rolldown>@rolldown/binding-win32-arm64-msvc: '-'
   rolldown>@rolldown/binding-win32-x64-msvc: '-'
+  typescript>@typescript/typescript-aix-ppc64: '-'
+  typescript>@typescript/typescript-darwin-arm64: '-'
+  typescript>@typescript/typescript-darwin-x64: '-'
+  typescript>@typescript/typescript-freebsd-arm64: '-'
+  typescript>@typescript/typescript-freebsd-x64: '-'
+  typescript>@typescript/typescript-linux-arm: '-'
+  typescript>@typescript/typescript-linux-arm64: '-'
+  typescript>@typescript/typescript-linux-loong64: '-'
+  typescript>@typescript/typescript-linux-mips64el: '-'
+  typescript>@typescript/typescript-linux-ppc64: '-'
+  typescript>@typescript/typescript-linux-riscv64: '-'
+  typescript>@typescript/typescript-linux-s390x: '-'
+  typescript>@typescript/typescript-netbsd-arm64: '-'
+  typescript>@typescript/typescript-netbsd-x64: '-'
+  typescript>@typescript/typescript-openbsd-arm64: '-'
+  typescript>@typescript/typescript-openbsd-x64: '-'
+  typescript>@typescript/typescript-sunos-x64: '-'
+  typescript>@typescript/typescript-win32-arm64: '-'
+  typescript>@typescript/typescript-win32-x64: '-'
   '@esbuild-kit/esm-loader': npm:tsx@^4.21.0
   esbuild: 0.28.2
 
@@ -129,8 +148,8 @@ importers:
         specifier: ^3.9.9
         version: 3.9.9
       typescript:
-        specifier: ~5.9.3
-        version: 5.9.3
+        specifier: ~7.0.2
+        version: 7.0.2
 
   artifacts/api-server:
     dependencies:
@@ -306,7 +325,7 @@ importers:
     devDependencies:
       orval:
         specifier: ^8.37.0
-        version: 8.37.0(@tanstack/react-query@5.104.0(react@19.3.0))(prettier@3.9.9)(swr@2.3.4(react@19.3.0))(typescript@5.9.3)(zod@4.6.5)
+        version: 8.37.0(@tanstack/react-query@5.104.0(react@19.3.0))(prettier@3.9.9)(swr@2.3.4(react@19.3.0))(typescript@7.0.2)(zod@4.6.5)
 
   lib/api-zod:
     dependencies:
@@ -1152,6 +1171,12 @@ packages:
 
   '@types/tough-cookie@4.0.5':
     resolution: {integrity: sha512-/Ad8+nIOV7Rl++6f1BdKxFSMgmoqEoYbHRpPcx3JEfv8VRsQe9Z4mCXeJBzxs7mbHY/XOZZuXlRNfhpVPbs6ZA==}
+
+  '@typescript/typescript-linux-x64@7.0.2':
+    resolution: {integrity: sha512-EYdf2cNg7rgCWJnxCdJ+F3V39O8ihb37eHAu1LK8oAFizgTQbPOK7zHHXbPt8rX24COqODXeI3sIf0fCXG7H/A==}
+    engines: {node: '>=16.20.0'}
+    cpu: [x64]
+    os: [linux]
 
   '@vitejs/plugin-react@6.1.1':
     resolution: {integrity: sha512-yxLaQV9gkhS8ezJqCM6+ndU7mDY6gqAg75NQ+0IjwEI8IYOmQCgkRwHKVSfWXW076DsqMo0Dk+0FK1U+M5RgFw==}
@@ -2243,9 +2268,9 @@ packages:
     resolution: {integrity: sha512-faYHw0anBbc/kWF3zFTEnxSFOAGUX9GFbOBthvDdLsIlEoWOFOtS0zgCiQYwIskL9iGXZL3kAXD8OoZ4GmMATA==}
     engines: {node: '>= 18'}
 
-  typescript@5.9.3:
-    resolution: {integrity: sha512-jl1vZzPDinLr9eUt3J/t7V6FgNEw9QjvBPdysz9KfQDD41fQrC2Y4vKQdiaUpFT4bXlb1RHhLpp8wtm6M5TgSw==}
-    engines: {node: '>=14.17'}
+  typescript@7.0.2:
+    resolution: {integrity: sha512-8FYau96o3NKOhbjKi/qNvG/W5jhzxkbdm5sj9AbZ/5T5sWqn3hJgLfGx27sRKZWTvyzCP8dLRBTf5tBTSRVUNA==}
+    engines: {node: '>=16.20.0'}
     hasBin: true
 
   undici-types@7.24.6:
@@ -2599,12 +2624,12 @@ snapshots:
     transitivePeerDependencies:
       - '@faker-js/faker'
 
-  '@orval/hono@8.37.0(typescript@5.9.3)(zod@4.6.5)':
+  '@orval/hono@8.37.0(typescript@7.0.2)(zod@4.6.5)':
     dependencies:
       '@orval/core': 8.37.0
       '@orval/zod': 8.37.0(zod@4.6.5)
     optionalDependencies:
-      typescript: 5.9.3
+      typescript: 7.0.2
     transitivePeerDependencies:
       - '@faker-js/faker'
       - zod
@@ -3136,6 +3161,9 @@ snapshots:
       '@types/node': 24.19.0
 
   '@types/tough-cookie@4.0.5': {}
+
+  '@typescript/typescript-linux-x64@7.0.2':
+    optional: true
 
   '@vitejs/plugin-react@6.1.1(vite@8.3.1(@types/node@24.19.0)(esbuild@0.28.2)(jiti@2.7.0)(tsx@4.23.15)(yaml@2.9.1))':
     dependencies:
@@ -3669,7 +3697,7 @@ snapshots:
     dependencies:
       wrappy: 1.0.2
 
-  orval@8.37.0(@tanstack/react-query@5.104.0(react@19.3.0))(prettier@3.9.9)(swr@2.3.4(react@19.3.0))(typescript@5.9.3)(zod@4.6.5):
+  orval@8.37.0(@tanstack/react-query@5.104.0(react@19.3.0))(prettier@3.9.9)(swr@2.3.4(react@19.3.0))(typescript@7.0.2)(zod@4.6.5):
     dependencies:
       '@commander-js/extra-typings': 15.0.0(commander@15.0.0)
       '@orval/angular': 8.37.0
@@ -3677,7 +3705,7 @@ snapshots:
       '@orval/core': 8.37.0
       '@orval/effect': 8.37.0
       '@orval/fetch': 8.37.0
-      '@orval/hono': 8.37.0(typescript@5.9.3)(zod@4.6.5)
+      '@orval/hono': 8.37.0(typescript@7.0.2)(zod@4.6.5)
       '@orval/mcp': 8.37.0(zod@4.6.5)
       '@orval/mock': 8.37.0
       '@orval/pinia-colada': 8.37.0
@@ -4116,7 +4144,9 @@ snapshots:
       media-typer: 1.1.1
       mime-types: 3.0.2
 
-  typescript@5.9.3: {}
+  typescript@7.0.2:
+    optionalDependencies:
+      '@typescript/typescript-linux-x64': 7.0.2
 
   undici-types@7.24.6: {}
 
